@@ -35,8 +35,33 @@ context.font = "30px Arial";
 context.textAlign = "center";
 context.fillStyle = 'green';
 
-let tiles = [0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0];
+let tiles = [0,0,0,0,1,1,1,1,1,1,
+             0,0,0,0,1,1,1,1,1,1,
+             0,0,0,0,1,1,1,1,1,1,
+             0,0,0,0,1,1,1,1,1,1,
+             1,1,1,1,1,1,1,1,1,1,
+             1,1,1,1,1,1,1,1,1,1,
+             1,1,1,1,1,1,1,1,1,1,
+             1,1,1,1,1,1,1,1,1,1,
+             1,1,1,1,1,1,1,1,1,1,
+             1,1,1,1,1,1,1,1,1,1,
+             1,1,1,1,1,1,1,0,0,0,
+             1,1,1,1,1,1,1,0,0,0,
+             0,0,0,1,1,1,1,0,0,0,
+             0,0,0,1,1,1,1,0,0,0,
+             0,0,0,1,1,1,1,0,0,0];
 let currentFrame = 0;
+
+let borderA = 96;
+let borderB = 64;
+let obstacles = [{relX:3, relY:0, type:1, reversed:false},
+                 {relX:2, relY:3, type:2, reversed:false},
+                 {relX:6, relY:4, type:2, reversed:false},
+                 {relX:5, relY:6, type:1, reversed:true},
+                 {relX:7, relY:9, type:2, reversed:false},
+                 {relX:0, relY:11, type:2, reversed:false},
+                 {relX:8, relY:13, type:1, reversed:true},
+                 {relX:2, relY:14, type:1, reversed:false}];
 
 let surroundings = new Image();
 surroundings.src = "surroundings.png"
@@ -47,6 +72,18 @@ function loop() {
 
   for (let i = 0; i < tiles.length; i++) {
     context.drawImage(surroundings, 160 + currentFrame * 32, tiles[i] * 32, 32, 32, (i % 10) * 32, (Math.floor(i / 10)) * 32, 32, 32);
+  }
+  for (let i = 0; i < obstacles.length; i++) {
+    if (obstacles[i].type == 1) {
+      if (obstacles[i].reversed) {
+        context.scale(-1, 1);
+        context.drawImage(surroundings, 0, 0, borderB, borderA, -((obstacles[i].relX) * 32), (Math.floor(obstacles[i].relY)) * 32, borderB, borderA);
+        context.scale(-1, 1);
+      } else
+        context.drawImage(surroundings, 0, 0, borderB, borderA, (obstacles[i].relX) * 32, (Math.floor(obstacles[i].relY)) * 32, borderB, borderA);
+    } else {
+      context.drawImage(surroundings, 64, 0, borderA, borderB, (obstacles[i].relX) * 32, (Math.floor(obstacles[i].relY)) * 32, borderA, borderB);
+    }
   }
   if (menu) {
     context.font = "50px Arial";
