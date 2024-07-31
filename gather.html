@@ -26,44 +26,14 @@
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
 
-// let end = false;
-// let menu = true;
+let end = false;
+let menu = true;
 
-// let score = 0;
-
-// let background = new Image(1280, 480);
-// background.src = "background.png";
-// let bx = 0;
-// let bx2 = canvas.width;
-// let blenght = 1280 - canvas.width;
-
-// let player = new Image(448, 64);
-// player.src = "player.png";
-// let playerFrame = 0;
+let score = 0;
 
 context.font = "30px Arial";
 context.textAlign = "center";
 context.fillStyle = 'green';
-
-// let xpos = [0, Math.floor(canvas.width / 5), Math.floor(canvas.width / 2), canvas.width - Math.floor(canvas.width / 5), canvas.width];
-// let ypos = [0, canvas.height];
-
-// let enemies = [{
-//   x: xpos[Math.floor(Math.random() * 5)],
-//   y: ypos[Math.floor(Math.random() * 2)],
-//   angle: 0,
-//   dirx: 0,
-//   diry: 0,
-//   state: 0
-// }];
-// enemies[0].angle = Math.atan2((350 + 64) - enemies[0].y, (130 + 64) - enemies[0].x);
-// enemies[0].dirx = Math.cos(enemies[0].angle);
-// enemies[0].diry = Math.sin(enemies[0].angle);
-// let enemyImage = new Image(64, 16);
-// enemyImage.src = "enemy.png";
-
-// let enemySpawnRate = 600;
-// let spawnTime = 0;
 
 let tiles = [0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0];
 let currentFrame = 0;
@@ -77,13 +47,11 @@ function loop() {
 
   for (let i = 0; i < tiles.length; i++) {
     context.drawImage(surroundings, 160 + currentFrame * 32, tiles[i] * 32, 32, 32, (i % 10) * 32, (Math.floor(i / 10)) * 32, 32, 32);
-  };
-  // context.drawImage(background, bx, 0, 320, 480, 0, 0, canvas.width, canvas.height);
-  // context.drawImage(background, 0, 0, 320, 480, bx2, 0, canvas.width, canvas.height);
-  // if (menu) {
-  //   context.font = "70px Arial";
-  //   context.fillText("tap to start", canvas.width / 2, canvas.height / 2);
-  // } else if (!end) {
+  }
+  if (menu) {
+    context.font = "50px Arial";
+    context.fillText("tap to start", canvas.width / 2, canvas.height / 2);
+  } else if (!end) {
   //   context.drawImage(player, playerFrame * 64, 0, 64, 64, 130, 350, 128, 128);
   //   enemies.forEach(function(enemy) {
   //     context.drawImage(enemyImage, enemy.state * 32, 0, 32, 16, enemy.x, enemy.y, 32, 16);
@@ -104,25 +72,13 @@ function loop() {
   //   enemies = enemies.filter(function(enemy) {
   //     return onScreen(enemy);
   //   })
-  // } else {
-  //   context.font = "50px Arial";
-  //   context.fillText("your score : " + score, canvas.width / 2, canvas.height / 2);
-  //   context.font = "20px Arial";
-  //   context.fillText("tap to restart", canvas.width / 2, canvas.height - 10);
-  // }
+  } else {
+    context.font = "50px Arial";
+    context.fillText("your score : " + score, canvas.width / 2, canvas.height / 2);
+    context.font = "20px Arial";
+    context.fillText("tap to restart", canvas.width / 2, canvas.height - 10);
+  }
 }
-
-// function backgroundMove() {
-//   if (!end && !menu) {
-//     bx += 1;
-//     if (bx >= blenght)
-//       bx2 = canvas.width - (bx - blenght);
-//     if (bx2 <= 0) {
-//       bx = 0;
-//       bx2 = canvas.width;
-//     }
-//   }
-// }
 
 function animateWater() {
   currentFrame += 1;
@@ -162,11 +118,6 @@ function animateWater() {
 //   return false;
 // }
 
-// function incrementSpawnTime() {
-//   if (!end && !menu)
-//     spawnTime += 1;
-// }
-
 setInterval(animateWater, 120);
 // setInterval(backgroundMove, 10);
 // setInterval(enemyMove, 20);
@@ -176,11 +127,11 @@ document.addEventListener('mousedown', function(e) {
   let relativeX = e.x - canvas.offsetLeft;
   let relativeY = e.y - canvas.offsetTop;
 
-  // if (menu) {
-  //   menu = false;
-  //   return;
-  // }
-  // if (!end) {
+  if (menu) {
+    menu = false;
+    return;
+  }
+  if (!end) {
   //   enemies.forEach(function(enemy) {
   //     if (relativeY < enemy.y || relativeY > enemy.y + 16)
   //       return;
@@ -191,12 +142,10 @@ document.addEventListener('mousedown', function(e) {
   //     enemy.diry = - enemy.diry;
   //     score += 1;
   //   });
-  // } else {
-  //   score = 0;
-  //   enemySpawnRate = 600;
-  //   spawnTime = 0;
-  //   end = false;
-  // }
+  } else {
+    score = 0;
+    end = false;
+  }
 });
 
 requestAnimationFrame(loop);
