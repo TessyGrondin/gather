@@ -27,13 +27,13 @@ const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
 
 let end = false;
-let menu = true;
+let menu = false;
 
 let score = 0;
 
 context.font = "30px Arial";
 context.textAlign = "center";
-context.fillStyle = 'green';
+context.fillStyle = 'yellow';
 
 let tiles = [0,0,0,0,1,1,1,1,1,1,
              0,0,0,0,1,1,1,1,1,1,
@@ -57,33 +57,35 @@ let borderB = 64;
 let obstacles = [{relX:3, relY:0, type:1, reversed:false},
                  {relX:2, relY:3, type:2, reversed:false},
                  {relX:6, relY:4, type:2, reversed:false},
-                 {relX:5, relY:6, type:1, reversed:true},
+                 {relX:3, relY:6, type:1, reversed:true},
                  {relX:7, relY:9, type:2, reversed:false},
                  {relX:0, relY:11, type:2, reversed:false},
-                 {relX:8, relY:13, type:1, reversed:true},
+                 {relX:6, relY:13, type:1, reversed:true},
                  {relX:2, relY:14, type:1, reversed:false}];
 
 let surroundings = new Image();
 surroundings.src = "surroundings.png"
 
+let crocImage = new Image();
+crocImage.src = "croc.png"
+
 function loop() {
   requestAnimationFrame(loop);
   context.clearRect(0,0,canvas.width,canvas.height);
 
-  for (let i = 0; i < tiles.length; i++) {
+  for (let i = 0; i < tiles.length; i++)
     context.drawImage(surroundings, 160 + currentFrame * 32, tiles[i] * 32, 32, 32, (i % 10) * 32, (Math.floor(i / 10)) * 32, 32, 32);
-  }
   for (let i = 0; i < obstacles.length; i++) {
     if (obstacles[i].type == 1) {
       if (obstacles[i].reversed) {
+        context.save();
         context.scale(-1, 1);
-        context.drawImage(surroundings, 0, 0, borderB, borderA, -((obstacles[i].relX) * 32), (Math.floor(obstacles[i].relY)) * 32, borderB, borderA);
-        context.scale(-1, 1);
+        context.drawImage(surroundings, 0, 0, borderB, borderA, -((obstacles[i].relX) * 32) - 64, (Math.floor(obstacles[i].relY)) * 32, borderB, borderA);
+        context.restore();
       } else
         context.drawImage(surroundings, 0, 0, borderB, borderA, (obstacles[i].relX) * 32, (Math.floor(obstacles[i].relY)) * 32, borderB, borderA);
-    } else {
+    } else
       context.drawImage(surroundings, 64, 0, borderA, borderB, (obstacles[i].relX) * 32, (Math.floor(obstacles[i].relY)) * 32, borderA, borderB);
-    }
   }
   if (menu) {
     context.font = "50px Arial";
@@ -184,7 +186,12 @@ document.addEventListener('mousedown', function(e) {
     end = false;
   }
 });
-
+  // context.save();
+  // context.translate(canvas.width / 2, canvas.height / 2);
+  // context.rotate(-Math.PI / 2);
+  // context.fillRect(1, -3, 6, 4);//rotation 90 degree clockwise, (x, -height - y + 1)
+  // context.fillRect(-6, 1, 6, 4);//rotation 90 degree not clockwise, (-width - x + 1, y)
+  // context.restore();
 requestAnimationFrame(loop);
 </script>
 </body>
