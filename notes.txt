@@ -1,0 +1,77 @@
+
+bool lineLine(sfVector2f p1, sfVector2fp2, sfVector2f p3, sfVector2f p4)
+{
+  float uA = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) /
+             ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
+  float uB = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) /
+             ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
+
+  if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1)
+    return true;
+  return false;
+}
+
+bool lineRect(sfVector2f p1, sfVector2f p2, sfVector2f pos, sfVector2f size)
+{
+  bool left = lineLine(p1, p2, pos, (sfVector2f){pos.x, pos.y + size.y});
+  bool right = lineLine(p1, p2, (sfVector2f){pos.x + size.x, pos.y}, (sfVector2f){pos.x + size.x, pos.y + size.y});
+  bool top = lineLine(p1, p2, pos, (sfVector2f){pos.x + size.x, pos.y});
+  bool bottom = lineLine(p1, p2, (sfVector2f){pos.x, pos.y + size.y}, (sfVector2f){pos.x + size.x, pos.y + size.y});
+
+  return (left || right || top || bottom);
+}
+
+bool polyRect(sfVector2f *vertices, sfVector2f rectPos, sfVector2f rectSize)
+{
+  int next = 0;
+  bool collision = false;
+
+  for (int current = 0; current < 4; current++) {
+    next = current + 1;
+    if (next == 4)
+        next = 0;
+    collision = lineRect(vertices[current], vertices[next], rectPos, rectSize);
+    if (collision)
+        return true;
+  }
+  return false;
+}
+
+
+
+
+
+
+
+var canvas = document.getElementById('canvas'),
+    ctx = canvas.getContext('2d'),
+    flipButton = document.getElementById('flipButton'),
+    img = new Image(),
+    width = 500,
+    height = 328;
+
+function flipImage(image, ctx, flipH, flipV) {
+    var scaleH = flipH ? -1 : 1, // Set horizontal scale to -1 if flip horizontal
+        scaleV = flipV ? -1 : 1, // Set verical scale to -1 if flip vertical
+        posX = flipH ? width * -1 : 0, // Set x position to -100% if flip horizontal
+        posY = flipV ? height * -1 : 0; // Set y position to -100% if flip vertical
+
+    ctx.save(); // Save the current state
+    ctx.scale(scaleH, scaleV); // Set scale to flip the image
+    ctx.drawImage(img, posX, posY, width, height); // draw the image
+    ctx.restore(); // Restore the last saved state
+};
+
+function flipNinjas() {
+    var flipH = document.getElementById('horizontalCheckbox').checked,
+        flipV = document.getElementById('verticalCheckbox').checked;
+
+    flipImage(img, ctx, flipH, flipV);
+
+    return false;
+}
+
+flipButton.onclick = flipNinjas;
+img.onload = flipNinjas;
+
+img.src = 'http://3.bp.blogspot.com/-h_hVjcMqx8Q/TdSbVhT18sI/AAAAAAAAACQ/y-egUR0AtRM/s1600/ninja_true-ninjas.gif';
