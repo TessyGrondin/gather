@@ -22,6 +22,7 @@ class PlayState extends FlxState
 	var y = [0, 3, 4, 6, 9, 11, 13, 14];
 	var t = [1, 2, 2, 1, 2, 2, 1, 1];
 	var rev = [false, false, false, true, false, false, true, false];
+	var crocs:Array<Croc>;
 
 	override public function create()
 	{
@@ -37,6 +38,12 @@ class PlayState extends FlxState
 		for (i in 0...8) {
 			obstacles.push(new Obstacle(x[i], y[i], t[i], rev[i]));
 			add(obstacles[i]);
+		}
+
+		crocs = new Array<Croc>();
+		for (i in 0...1) {
+			crocs.push(new Croc(4, 8));
+			add(crocs[i]);
 		}
 
 		timer = new FlxTimer();
