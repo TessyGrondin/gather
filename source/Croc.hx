@@ -9,9 +9,15 @@ import flixel.util.FlxColor;
 class Croc extends FlxSprite
 {
     public var orientation:Int;
+    var L1 = 0.75 * 19;//__ right left
+    var l1 = 0.75 * 37;// |
+    var L2 = 0.75 * 41;//__
+    var l2 = 0.75 * 18;// |
+    var rw = 0.75 * 79;
+
 	public function new(relX:Int, relY:Int)
 	{
-		super(relX * 32 - ((79 - 0.75 * 79) / 2), relY * 32 - ((37 - 0.75 * 37) / 2));
+		super(relX * 32 - ((79 - rw) / 2), relY * 32 - ((37 - l1) / 2));
 
     	loadGraphic(AssetPaths.croc__png, true, 79, 37);
 		updateHitbox();
@@ -19,8 +25,8 @@ class Croc extends FlxSprite
         scale.x = 0.75;
         scale.y = 0.75;
 
-		this.x = relX * 32 - ((79 - 0.75 * 79) / 2);
-		this.y = relY * 32 - ((37 - 0.75 * 37) / 2);
+		this.x = relX * 32 - ((79 - rw) / 2);
+		this.y = relY * 32 - ((37 - l1) / 2);
 
         animation.add("swim", [0, 1, 2, 3], 10, true);
         animation.play("swim");
@@ -40,26 +46,26 @@ class Croc extends FlxSprite
         if (!FlxG.mouse.justPressed)
             return;
         if (orientation == 0 || orientation == 2) {
-            if (FlxG.mouse.x < x || FlxG.mouse.x > x + 79 || FlxG.mouse.y < y || FlxG.mouse.y > y + 37)
+            if (FlxG.mouse.x < x || FlxG.mouse.x > x + rw || FlxG.mouse.y < y || FlxG.mouse.y > y + l1)
                 return;
-            if (FlxG.mouse.x > x + 60 && FlxG.mouse.x < x + 79 && FlxG.mouse.y > y && FlxG.mouse.y < y + 37)
+            if (FlxG.mouse.x > x + L1 + L2 && FlxG.mouse.x < x + rw && FlxG.mouse.y > y && FlxG.mouse.y < y + l1)
                 orientation = 0;
-            if (FlxG.mouse.x > x + 19 && FlxG.mouse.x < x + 60 && FlxG.mouse.y > y + 19 && FlxG.mouse.y < y + 37)
+            if (FlxG.mouse.x > x + L1 && FlxG.mouse.x < x + L1 + L2 && FlxG.mouse.y > y + L1 && FlxG.mouse.y < y + l1)
                 orientation = 1;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + 19 && FlxG.mouse.y > y && FlxG.mouse.y < y + 37)
+            if (FlxG.mouse.x > x && FlxG.mouse.x < x + L1 && FlxG.mouse.y > y && FlxG.mouse.y < y + l1)
                 orientation = 2;
-            if (FlxG.mouse.x > x + 19 && FlxG.mouse.x < x + 60 && FlxG.mouse.y > y && FlxG.mouse.y < y + 18)
+            if (FlxG.mouse.x > x + L1 && FlxG.mouse.x < x + L1 + L2 && FlxG.mouse.y > y && FlxG.mouse.y < y + l2)
                 orientation = 3;
         } else {
-            if (FlxG.mouse.x < x || FlxG.mouse.x > x + 37 || FlxG.mouse.y < y || FlxG.mouse.y > y + 79)
+            if (FlxG.mouse.x < x || FlxG.mouse.x > x + l1 || FlxG.mouse.y < y - L1 || FlxG.mouse.y > y + L1 + L2)
                 return;
-            if (FlxG.mouse.x > x + 19 && FlxG.mouse.x < x + 37 && FlxG.mouse.y > y + 19 && FlxG.mouse.y < y + 60)
+            if (FlxG.mouse.x > x + L1 && FlxG.mouse.x < x + l1 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
                 orientation = 0;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + 37 && FlxG.mouse.y > y + 60 && FlxG.mouse.y < y + 79)
+            if (FlxG.mouse.x > x && FlxG.mouse.x < x + l1 && FlxG.mouse.y > y + L2 && FlxG.mouse.y < y + L1 + L2)
                 orientation = 1;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + 18 && FlxG.mouse.y > y + 19 && FlxG.mouse.y < y + 60)
+            if (FlxG.mouse.x > x && FlxG.mouse.x < x + l2 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
                 orientation = 2;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + 37 && FlxG.mouse.y > y && FlxG.mouse.y < y + 19)
+            if (FlxG.mouse.x > x && FlxG.mouse.x < x + l1 && FlxG.mouse.y > y - L1 && FlxG.mouse.y < y)
                 orientation = 3;
         }
     }
