@@ -45,6 +45,7 @@ class PlayState extends FlxState
 			crocs.push(new Croc(0, 0));
 			add(crocs[i]);
 		}
+		crocs[0].orientation = 0;
 
 		timer = new FlxTimer();
 		timer.start(90, change, 0);

@@ -11,16 +11,16 @@ class Croc extends FlxSprite
     public var orientation:Int;
 	public function new(relX:Int, relY:Int)
 	{
-		super(relX * 32, relY * 32);
+		super(relX * 32 - ((79 - 0.75 * 79) / 2), relY * 32 - ((37 - 0.75 * 37) / 2));
 
     	loadGraphic(AssetPaths.croc__png, true, 79, 37);
 		updateHitbox();
 
-        // scale.x = 0.75;
-        // scale.y = 0.75;
+        scale.x = 0.75;
+        scale.y = 0.75;
 
-		this.x = relX * 32;
-		this.y = relY * 32;
+		this.x = relX * 32 - ((79 - 0.75 * 79) / 2);
+		this.y = relY * 32 - ((37 - 0.75 * 37) / 2);
 
         animation.add("swim", [0, 1, 2, 3], 10, true);
         animation.play("swim");
