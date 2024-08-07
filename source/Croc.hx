@@ -9,11 +9,17 @@ import flixel.util.FlxColor;
 class Croc extends FlxSprite
 {
     public var orientation:Int;
-    var L1 = 0.75 * 19;//__ right left
-    var l1 = 0.75 * 37;// |
-    var L2 = 0.75 * 41;//__
-    var l2 = 0.75 * 18;// |
-    var rw = 0.75 * 79;
+    public var left = true;
+    public var right = true;
+    public var up = true;
+    public var down = true;
+    var L1 = 0.75 * 19;
+    public var l1 = 0.75 * 37;
+    var L2 = 0.75 * 41;
+    var l2 = 0.75 * 18;
+    public var rw = 0.75 * 79;
+    public var X:Float;
+    public var Y:Float;
 
 	public function new(relX:Int, relY:Int)
 	{
@@ -38,15 +44,22 @@ class Croc extends FlxSprite
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+        if (orientation == 0 || orientation == 2) {
+            X = x;
+            Y = y;
+        } else {
+            X = x + l1;
+            Y = y - L1;
+        }
         angle = orientation * 90;
         changeDirection();
-        if (orientation == 0 && x - 1 > -((79 - rw) / 2))
+        if (orientation == 0 && x - 1 > -((79 - rw) / 2) && left)
             x -= 0.5;
-        else if (orientation == 1 && y - 1 > ((79 - rw) / 2))
+        else if (orientation == 1 && y - 1 > ((79 - rw) / 2) && up)
             y -= 0.5;
-        else if (orientation == 2 && x + 1 + rw + ((79 - rw) / 2) < 320)
+        else if (orientation == 2 && x + 1 + rw + ((79 - rw) / 2) < 320 && right)
             x += 0.5;
-        else if (orientation == 3 && y + 1 + rw - ((79 - rw) / 2) < 480)
+        else if (orientation == 3 && y + 1 + rw - ((79 - rw) / 2) < 480 && down)
             y += 0.5;
 	}
 

@@ -7,11 +7,11 @@ class Obstacle extends FlxSprite
 	var px1 = [23, 0, 21, 26, 44, 63];
 	var px2 = [40, 63, 42, 37, 18, 0];
 	var px3 = [70, 87, 91, 93, 51, 12, 2, 6, 50];
-	var px:Array<Int>;
+	public var px:Array<Int>;
 
 	var py1 = [0, 17, 51, 79, 93, 73];
 	var py2 = [0, 0, 8, 21, 47, 59, 51, 30, 16];
-	var py:Array<Int>;
+	public var py:Array<Int>;
 
 	public function new(relX:Int, relY:Int, type:Int, reversed:Bool)
 	{

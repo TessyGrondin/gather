@@ -58,7 +58,11 @@ class PlayState extends FlxState
 		super.update(elapsed);
 
 		timer_disp.text = "" + Std.int(timer.timeLeft);
-
+		for (i in 0...crocs.length) {
+			for (j in 0...obstacles.length)
+				if (polyRect(obstacles[j], crocs[i]))
+					break;
+		}
 	}
 
 	public function change(_):Void
@@ -68,4 +72,49 @@ class PlayState extends FlxState
 			FlxG.switchState(new EndState(1));
 		});
 	}
+
+	function polyRect(obs:Obstacle, rec:Croc):Bool {
+		var next = 0;
+		var collision = false;
+
+		for (current in 0...obs.px.length) {
+			next = current + 1;
+			if (next == obs.px.length)
+				next = 0;
+			if (lineRect(obs.px[current] + obs.x, obs.py[current] + obs.y, obs.px[next] + obs.x, obs.py[next] + obs.y, rec))
+				return true;
+		}
+		return false;
+	}
+
+	function lineRect(p1x, p1y, p2x, p2y, rec:Croc):Bool {
+		var L:Float;
+		var l:Float;
+
+		if (rec.orientation == 0 || rec.orientation == 2) {
+			L = rec.rw;
+			l = rec.l1;
+		} else {
+			L = rec.l1;
+			l = rec.rw;
+		}
+		rec.left = lineLine(p1x, p1y, p2x, p2y, rec.X, rec.Y, rec.X, rec.Y + l);
+		rec.right = lineLine(p1x, p1y, p2x, p2y, rec.X + L, rec.Y, rec.X + L, rec.Y + l);
+		rec.up = lineLine(p1x, p1y, p2x, p2y, rec.X, rec.Y, rec.X + L, rec.Y);
+		rec.down = lineLine(p1x, p1y, p2x, p2y, rec.X, rec.Y + l, rec.X + L, rec.Y + l);
+
+		return (!rec.left || !rec.right || !rec.up || !rec.down);
+	}
+
+	function lineLine(p1x:Float, p1y:Float, p2x:Float, p2y:Float, p3x:Float, p3y:Float, p4x:Float, p4y:Float):Bool {
+		var uA = ((p4x - p3x) * (p1y - p3y) - (p4y - p3y) * (p1x - p3x)) /
+				 ((p4y - p3y) * (p2x - p1x) - (p4x - p3x) * (p2y - p1y));
+		var uB = ((p2x - p1x) * (p1y - p3y) - (p2y - p1y) * (p1x - p3x)) /
+				 ((p4y - p3y) * (p2x - p1x) - (p4x - p3x) * (p2y - p1y));
+
+		if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1)
+			return false;
+		return true;
+	}
 }
+
