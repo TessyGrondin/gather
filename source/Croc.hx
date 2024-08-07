@@ -57,15 +57,16 @@ class Croc extends FlxSprite
             if (FlxG.mouse.x > x + L1 && FlxG.mouse.x < x + L1 + L2 && FlxG.mouse.y > y && FlxG.mouse.y < y + l2)
                 orientation = 3;
         } else {
-            if (FlxG.mouse.x < x || FlxG.mouse.x > x + l1 || FlxG.mouse.y < y - L1 || FlxG.mouse.y > y + L1 + L2)
+            var nx = x + l1;
+            if (FlxG.mouse.x < nx || FlxG.mouse.x > nx + l1 || FlxG.mouse.y < y - L1 || FlxG.mouse.y > y + L1 + L2)
                 return;
-            if (FlxG.mouse.x > x + L1 && FlxG.mouse.x < x + l1 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
+            if (FlxG.mouse.x > nx + L1 && FlxG.mouse.x < nx + l1 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
                 orientation = 0;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + l1 && FlxG.mouse.y > y + L2 && FlxG.mouse.y < y + L1 + L2)
+            if (FlxG.mouse.x > nx && FlxG.mouse.x < nx + l1 && FlxG.mouse.y > y + L2 && FlxG.mouse.y < y + L1 + L2)
                 orientation = 1;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + l2 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
+            if (FlxG.mouse.x > nx && FlxG.mouse.x < nx + l2 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
                 orientation = 2;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + l1 && FlxG.mouse.y > y - L1 && FlxG.mouse.y < y)
+            if (FlxG.mouse.x > nx && FlxG.mouse.x < nx + l1 && FlxG.mouse.y > y - L1 && FlxG.mouse.y < y)
                 orientation = 3;
         }
     }
