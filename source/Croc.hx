@@ -40,6 +40,14 @@ class Croc extends FlxSprite
 		super.update(elapsed);
         angle = orientation * 90;
         changeDirection();
+        if (orientation == 0)
+            x -= 0.5;
+        else if (orientation == 1)
+            y -= 0.5;
+        else if (orientation == 2)
+            x += 0.5;
+        else
+            y += 0.5;
 	}
 
     public function changeDirection() {

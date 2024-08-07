@@ -42,7 +42,7 @@ class PlayState extends FlxState
 
 		crocs = new Array<Croc>();
 		for (i in 0...1) {
-			crocs.push(new Croc(0, 0));
+			crocs.push(new Croc(5, 7));
 			add(crocs[i]);
 		}
 
