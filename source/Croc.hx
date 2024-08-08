@@ -45,8 +45,8 @@ class Croc extends FlxSprite
 	{
 		super.update(elapsed);
         if (orientation == 0 || orientation == 2) {
-            X = x;
-            Y = y;
+            X = x + ((79 - rw) / 2);
+            Y = y + ((37 - l1) / 2);
         } else {
             X = x + l1;
             Y = y - L1;
@@ -67,27 +67,26 @@ class Croc extends FlxSprite
         if (!FlxG.mouse.justPressed)
             return;
         if (orientation == 0 || orientation == 2) {
-            if (FlxG.mouse.x < x || FlxG.mouse.x > x + rw || FlxG.mouse.y < y || FlxG.mouse.y > y + l1)
+            if (FlxG.mouse.x < X || FlxG.mouse.x > X + rw || FlxG.mouse.y < y || FlxG.mouse.y > y + l1)
                 return;
-            if (FlxG.mouse.x > x + L1 + L2 && FlxG.mouse.x < x + rw && FlxG.mouse.y > y && FlxG.mouse.y < y + l1)
+            if (FlxG.mouse.x > X + L1 + L2 && FlxG.mouse.x < X + rw && FlxG.mouse.y > y && FlxG.mouse.y < y + l1)
                 orientation = 0;
-            if (FlxG.mouse.x > x + L1 && FlxG.mouse.x < x + L1 + L2 && FlxG.mouse.y > y + L1 && FlxG.mouse.y < y + l1)
+            if (FlxG.mouse.x > X + L1 && FlxG.mouse.x < X + L1 + L2 && FlxG.mouse.y > y + L1 && FlxG.mouse.y < y + l1)
                 orientation = 1;
-            if (FlxG.mouse.x > x && FlxG.mouse.x < x + L1 && FlxG.mouse.y > y && FlxG.mouse.y < y + l1)
+            if (FlxG.mouse.x > X && FlxG.mouse.x < X + L1 && FlxG.mouse.y > y && FlxG.mouse.y < y + l1)
                 orientation = 2;
-            if (FlxG.mouse.x > x + L1 && FlxG.mouse.x < x + L1 + L2 && FlxG.mouse.y > y && FlxG.mouse.y < y + l2)
+            if (FlxG.mouse.x > X + L1 && FlxG.mouse.x < X + L1 + L2 && FlxG.mouse.y > y && FlxG.mouse.y < y + l2)
                 orientation = 3;
         } else {
-            var nx = x + l1;
-            if (FlxG.mouse.x < nx || FlxG.mouse.x > nx + l1 || FlxG.mouse.y < y - L1 || FlxG.mouse.y > y + L1 + L2)
+            if (FlxG.mouse.x < X || FlxG.mouse.x > X + l1 || FlxG.mouse.y < y - L1 || FlxG.mouse.y > y + L1 + L2)
                 return;
-            if (FlxG.mouse.x > nx + L1 && FlxG.mouse.x < nx + l1 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
+            if (FlxG.mouse.x > X + L1 && FlxG.mouse.x < X + l1 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
                 orientation = 0;
-            if (FlxG.mouse.x > nx && FlxG.mouse.x < nx + l1 && FlxG.mouse.y > y + L2 && FlxG.mouse.y < y + L1 + L2)
+            if (FlxG.mouse.x > X && FlxG.mouse.x < X + l1 && FlxG.mouse.y > y + L2 && FlxG.mouse.y < y + L1 + L2)
                 orientation = 1;
-            if (FlxG.mouse.x > nx && FlxG.mouse.x < nx + l2 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
+            if (FlxG.mouse.x > X && FlxG.mouse.x < X + l2 && FlxG.mouse.y > y && FlxG.mouse.y < y + L2)
                 orientation = 2;
-            if (FlxG.mouse.x > nx && FlxG.mouse.x < nx + l1 && FlxG.mouse.y > y - L1 && FlxG.mouse.y < y)
+            if (FlxG.mouse.x > X && FlxG.mouse.x < X + l1 && FlxG.mouse.y > y - L1 && FlxG.mouse.y < y)
                 orientation = 3;
         }
     }
