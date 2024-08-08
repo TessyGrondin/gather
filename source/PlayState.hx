@@ -18,10 +18,10 @@ class PlayState extends FlxState
 	var tiles:Array<Tile>;
 	var obstacles:Array<Obstacle>;
 	var type = [0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0];
-	var x = [3, 2, 6, 3, 7, 0, 6, 2];
-	var y = [0, 3, 4, 6, 9, 11, 13, 14];
-	var t = [1, 2, 2, 1, 2, 2, 1, 1];
-	var rev = [false, false, false, true, false, false, true, false];
+	var x = [3, 2, 4, 7, 0, 6, 2];
+	var y = [0, 3, 6, 9, 11, 13, 14];
+	var t = [1, 2, 1, 2, 2, 1, 1];
+	var rev = [false, false, true, false, false, true, false];
 	var crocs:Array<Croc>;
 
 	override public function create()
@@ -35,7 +35,7 @@ class PlayState extends FlxState
 		}
 
 		obstacles = new Array<Obstacle>();
-		for (i in 0...8) {
+		for (i in 0...rev.length) {
 			obstacles.push(new Obstacle(x[i], y[i], t[i], rev[i]));
 			add(obstacles[i]);
 		}
