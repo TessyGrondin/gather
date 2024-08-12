@@ -23,9 +23,6 @@ class PlayState extends FlxState
 	var cx = [6, 4, 5, 6, 6, 2, 5, 3];
 	var cy = [7, 1, 2, 4, 6, 9, 13, 4];
 
-	// var rec1:FlxSprite;
-	// var rec2:FlxSprite;
-
 	override public function create()
 	{
 		super.create();
@@ -43,18 +40,10 @@ class PlayState extends FlxState
 		}
 
 		crocs = new Array<Croc>();
-		for (i in 0...1) {
+		for (i in 0...cx.length) {
 			crocs.push(new Croc(cx[i], cy[i]));
 			add(crocs[i]);
 		}
-
-		// crocs[0].orientation = 2;
-		// rec1 = new FlxSprite(crocs[0].nx, crocs[0].ny);
-		// rec1.makeGraphic(Std.int(crocs[0].bw), Std.int(crocs[0].bh), FlxColor.RED);
-		// add(rec1);
-		// rec2 = new FlxSprite(crocs[0].nx, crocs[0].ny);
-		// rec2.makeGraphic(Std.int(crocs[0].revbw), Std.int(crocs[0].revbh), FlxColor.RED);
-		// add(rec2);
 
 		timer = new FlxTimer();
 		timer.start(90, change, 0);
@@ -66,18 +55,6 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-
-		// if (crocs[0].orientation == 0 || crocs[0].orientation == 2) {
-		// 	rec1.alpha = 255;
-		// 	rec2.alpha = 0;
-		// } else {
-		// 	rec2.alpha = 255;
-		// 	rec1.alpha = 0;
-		// }
-		// rec1.x = crocs[0].nx;
-		// rec1.y = crocs[0].ny;
-		// rec2.x = crocs[0].nx;
-		// rec2.y = crocs[0].ny;
 
 		timer_disp.text = "" + Std.int(timer.timeLeft);
 		for (i in 0...crocs.length) {
@@ -91,7 +68,7 @@ class PlayState extends FlxState
 	{
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, false, function()
 		{
-			FlxG.switchState(new EndState(1));
+			FlxG.switchState(new EndState(computeScore()));
 		});
 	}
 
@@ -100,7 +77,6 @@ class PlayState extends FlxState
 		cro.right = true;
 		cro.up = true;
 		cro.down = true;
-		// allowToTurn(obs, cro);
 		if (obs.Y > cro.ny + cro.bh || cro.ny > obs.Y + obs.bh)
 			return false;
 		if (obs.X > cro.nx + cro.bw || cro.nx > obs.X + obs.bw)
@@ -132,6 +108,26 @@ class PlayState extends FlxState
 			if (obs.Y + obs.bh >= cro.revY && obs.Y < cro.revY)
 				cro.up = false;
 		}
+	}
+
+	function computeScore():Int {
+		var score = 0;
+
+		for (i in 0...crocs.length) {
+			if (contain(crocs[i]))
+				score++;
+		}
+		return score;
+	}
+
+	function contain(c:Croc):Bool {
+		if (c.X >= 0 && c.X + c.bw <= 128 && c.Y >= 0 && c.Y + c.bh <= 128)
+			return true;
+		if (c.X >= 224 && c.X + c.bw <= 320 && c.Y >= 320 && c.Y + c.bh <= 480)
+			return true;
+		if (c.X >= 0 && c.X + c.bw <= 96 && c.Y >= 384 && c.Y + c.bh <= 480)
+			return true;
+		return false;
 	}
 }
 

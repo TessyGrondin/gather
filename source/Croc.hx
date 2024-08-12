@@ -64,8 +64,8 @@ class Croc extends FlxSprite
         else if (orientation == 3)
             ny = y + 0.5;
 
-        // timer = new FlxTimer();
-		// timer.start(5, changeOrientation, 0);
+        timer = new FlxTimer();
+		timer.start(5, changeOrientation, 0);
 	}
 
 	override public function update(elapsed:Float):Void

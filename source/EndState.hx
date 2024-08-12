@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
@@ -27,6 +26,9 @@ class EndState extends FlxState
 			tiles.push(new Tile(i, 1));
 			add(tiles[i]);
 		}
+
+		score = new FlxText(320 / 2 - 75, 480 / 2 - 20, 200, "Final result: " + finalScore, 20);
+		add(score);
 	}
 
 	override public function update(elapsed:Float)
