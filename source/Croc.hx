@@ -1,10 +1,10 @@
 package;
 
-import flixel.math.FlxRect;
 import flixel.FlxSprite;
 import flixel.math.FlxRandom;
 import flixel.FlxG;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 
 class Croc extends FlxSprite
 {
@@ -14,12 +14,15 @@ class Croc extends FlxSprite
     public var up = true;
     public var down = true;
     var L1 = 0.75 * 19;
-    public var l1 = 0.75 * 37;
+    var l1 = 0.75 * 37;
     var L2 = 0.75 * 41;
     var l2 = 0.75 * 18;
-    public var rw = 0.75 * 79;
+    var rw = 0.75 * 79;
     public var X:Float;
     public var Y:Float;
+    public var bw:Float;
+    public var bh:Float;
+    var timer:FlxTimer;
 
 	public function new(relX:Int, relY:Int)
 	{
@@ -39,6 +42,9 @@ class Croc extends FlxSprite
 
         var ran = new FlxRandom();
         orientation = ran.int(0, 3);
+
+        // timer = new FlxTimer();
+		// timer.start(5, changeOrientation, 0);
 	}
 
 	override public function update(elapsed:Float):Void
@@ -47,9 +53,13 @@ class Croc extends FlxSprite
         if (orientation == 0 || orientation == 2) {
             X = x + ((79 - rw) / 2);
             Y = y + ((37 - l1) / 2);
+            bw = rw;
+            bh = l1;
         } else {
             X = x + l1;
             Y = y - L1;
+            bw = l1;
+            bh = rw;
         }
         angle = orientation * 90;
         changeDirection();
@@ -89,5 +99,10 @@ class Croc extends FlxSprite
             if (FlxG.mouse.x > X && FlxG.mouse.x < X + l1 && FlxG.mouse.y > y - L1 && FlxG.mouse.y < y)
                 orientation = 3;
         }
+    }
+
+    public function changeOrientation(_):Void {
+        var ran = new FlxRandom();
+        orientation = ran.int(0, 3);
     }
 }

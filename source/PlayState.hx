@@ -1,10 +1,8 @@
 package;
 
 import flixel.FlxState;
-import flixel.FlxSprite;
-import flixel.math.FlxRandom;
 import flixel.FlxG;
-import haxe.iterators.ArrayIterator;
+import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxTimer;
 import flixel.util.FlxColor;
@@ -20,9 +18,10 @@ class PlayState extends FlxState
 	var type = [0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0];
 	var x = [3, 2, 4, 7, 0, 6, 2];
 	var y = [0, 3, 6, 9, 11, 13, 14];
-	var t = [1, 2, 1, 2, 2, 1, 1];
-	var rev = [false, false, true, false, false, true, false];
+	var rev = [false, true, false, true, true, false, false];
 	var crocs:Array<Croc>;
+	var cx = [5, 4, 5, 6, 6, 2, 5, 3];
+	var cy = [7, 1, 2, 4, 6, 9, 13, 4];
 
 	override public function create()
 	{
@@ -36,13 +35,13 @@ class PlayState extends FlxState
 
 		obstacles = new Array<Obstacle>();
 		for (i in 0...rev.length) {
-			obstacles.push(new Obstacle(x[i], y[i], t[i], rev[i]));
+			obstacles.push(new Obstacle(x[i], y[i], rev[i]));
 			add(obstacles[i]);
 		}
 
 		crocs = new Array<Croc>();
 		for (i in 0...1) {
-			crocs.push(new Croc(5, 7));
+			crocs.push(new Croc(cx[i], cy[i]));
 			add(crocs[i]);
 		}
 
@@ -60,7 +59,7 @@ class PlayState extends FlxState
 		timer_disp.text = "" + Std.int(timer.timeLeft);
 		for (i in 0...crocs.length) {
 			for (j in 0...obstacles.length)
-				if (polyRect(obstacles[j], crocs[i]))
+				if (collide(obstacles[j], crocs[i]))
 					break;
 		}
 	}
@@ -73,47 +72,23 @@ class PlayState extends FlxState
 		});
 	}
 
-	function polyRect(obs:Obstacle, rec:Croc):Bool {
-		var next = 0;
-		var collision = false;
-
-		for (current in 0...obs.px.length) {
-			next = current + 1;
-			if (next == obs.px.length)
-				next = 0;
-			if (lineRect(obs.px[current] + obs.x, obs.py[current] + obs.y, obs.px[next] + obs.x, obs.py[next] + obs.y, rec))
-				return true;
-		}
-		return false;
-	}
-
-	function lineRect(p1x, p1y, p2x, p2y, rec:Croc):Bool {
-		var L:Float;
-		var l:Float;
-
-		if (rec.orientation == 0 || rec.orientation == 2) {
-			L = rec.rw;
-			l = rec.l1;
-		} else {
-			L = rec.l1;
-			l = rec.rw;
-		}
-		rec.left = lineLine(p1x, p1y, p2x, p2y, rec.X, rec.Y, rec.X, rec.Y + l);
-		rec.right = lineLine(p1x, p1y, p2x, p2y, rec.X + L, rec.Y, rec.X + L, rec.Y + l);
-		rec.up = lineLine(p1x, p1y, p2x, p2y, rec.X, rec.Y, rec.X + L, rec.Y);
-		rec.down = lineLine(p1x, p1y, p2x, p2y, rec.X, rec.Y + l, rec.X + L, rec.Y + l);
-
-		return (!rec.left || !rec.right || !rec.up || !rec.down);
-	}
-
-	function lineLine(p1x:Float, p1y:Float, p2x:Float, p2y:Float, p3x:Float, p3y:Float, p4x:Float, p4y:Float):Bool {
-		var uA = ((p4x - p3x) * (p1y - p3y) - (p4y - p3y) * (p1x - p3x)) /
-				 ((p4y - p3y) * (p2x - p1x) - (p4x - p3x) * (p2y - p1y));
-		var uB = ((p2x - p1x) * (p1y - p3y) - (p2y - p1y) * (p1x - p3x)) /
-				 ((p4y - p3y) * (p2x - p1x) - (p4x - p3x) * (p2y - p1y));
-
-		if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1)
+	function collide(obs:Obstacle, cro:Croc):Bool {
+		cro.left = true;
+		cro.right = true;
+		cro.up = true;
+		cro.down = true;
+		if (obs.Y > cro.Y + cro.bh || cro.Y > obs.Y + obs.bh)
 			return false;
+		if (obs.X > cro.X + cro.bw || cro.X > obs.X + cro.bw)
+			return false;
+		if (obs.X + cro.bw >= cro.X && obs.X < cro.X)
+			cro.left = false;
+		if (obs.X <= cro.X + cro.bw && obs.X + cro.bw > cro.X)
+			cro.right = false;
+		if (obs.Y <= cro.Y + cro.bh && obs.Y + obs.bh > cro.Y)
+			cro.down = false;
+		if (obs.Y + obs.bh >= cro.Y && obs.Y < cro.Y)
+			cro.up = false;
 		return true;
 	}
 }

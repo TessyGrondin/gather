@@ -1,38 +1,19 @@
-
-bool lineLine(sfVector2f p1, sfVector2fp2, sfVector2f p3, sfVector2f p4)
-{
-  float uA = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) /
-             ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
-  float uB = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) /
-             ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
-
-  if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1)
-    return true;
-  return false;
-}
-
-bool lineRect(sfVector2f p1, sfVector2f p2, sfVector2f pos, sfVector2f size)
-{
-  bool left = lineLine(p1, p2, pos, (sfVector2f){pos.x, pos.y + size.y});
-  bool right = lineLine(p1, p2, (sfVector2f){pos.x + size.x, pos.y}, (sfVector2f){pos.x + size.x, pos.y + size.y});
-  bool top = lineLine(p1, p2, pos, (sfVector2f){pos.x + size.x, pos.y});
-  bool bottom = lineLine(p1, p2, (sfVector2f){pos.x, pos.y + size.y}, (sfVector2f){pos.x + size.x, pos.y + size.y});
-
-  return (left || right || top || bottom);
-}
-
-bool polyRect(sfVector2f *vertices, sfVector2f rectPos, sfVector2f rectSize)
-{
-  int next = 0;
-  bool collision = false;
-
-  for (int current = 0; current < 4; current++) {
-    next = current + 1;
-    if (next == 4)
-        next = 0;
-    collision = lineRect(vertices[current], vertices[next], rectPos, rectSize);
-    if (collision)
-        return true;
-  }
-  return false;
+function collide(obs:Obstacle, cro:Croc):Bool {
+  cro.left = true;
+  cro.right = true;
+  cro.up = true;
+  cro.down = true;
+  if (obs.Y > cro.Y + cro.bh || cro.Y > obs.Y + obs.bh)
+    return false;
+  if (obs.X > cro.X + cro.bw || cro.X > obs.X + cro.bw)
+    return false;
+  if (obs.X + cro.bw >= cro.X && obs.X < cro.X)
+    cro.left = false;
+  if (obs.X <= cro.X + cro.bw && obs.X + cro.bw > cro.X)
+    cro.right = false;
+  if (obs.Y <= cro.Y + cro.bh && obs.Y + obs.bh > cro.Y)
+    cro.down = false;
+  if (obs.Y + obs.bh >= cro.Y && obs.Y < cro.Y)
+    cro.up = false;
+  return true;
 }
