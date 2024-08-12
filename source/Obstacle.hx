@@ -15,16 +15,16 @@ class Obstacle extends FlxSprite
         loadGraphic(AssetPaths.obstacle__png, false, 96, 64);
 		this.x = relX * 32;
 		this.y = relY * 32;
-		bw = width;
+		scale.x = 0.75;
+		bw = width * 0.75;
 		bh = height;
         if (reversed) {
 			angle = 90;
 			y -= width / 2;
 			x += width / 2;
+			bh = bw;
 			bw = height;
-			bh = width;
 		}
-		updateHitbox();
 	}
 
 	override public function update(elapsed:Float):Void

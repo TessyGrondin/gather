@@ -22,6 +22,12 @@ class Croc extends FlxSprite
     public var Y:Float;
     public var bw:Float;
     public var bh:Float;
+    public var revX:Float;
+    public var revY:Float;
+    public var revbw:Float;
+    public var revbh:Float;
+    public var nx:Float;
+    public var ny:Float;
     var timer:FlxTimer;
 
 	public function new(relX:Int, relY:Int)
@@ -43,6 +49,21 @@ class Croc extends FlxSprite
         var ran = new FlxRandom();
         orientation = ran.int(0, 3);
 
+        nx = x;
+        ny = y;
+        bw = rw;
+        bh = l1;
+        revbw = bh;
+        revbh = bw;
+        if (orientation == 0)
+            nx = x - 0.5;
+        else if (orientation == 1)
+            ny = y - 0.5;
+        else if (orientation == 2)
+            nx = x + 0.5;
+        else if (orientation == 3)
+            ny = y + 0.5;
+
         // timer = new FlxTimer();
 		// timer.start(5, changeOrientation, 0);
 	}
@@ -53,24 +74,39 @@ class Croc extends FlxSprite
         if (orientation == 0 || orientation == 2) {
             X = x + ((79 - rw) / 2);
             Y = y + ((37 - l1) / 2);
+            revX = x + l1;
+            revY = y - L1;
             bw = rw;
             bh = l1;
         } else {
             X = x + l1;
             Y = y - L1;
+            revX = x + ((79 - rw) / 2);
+            revY = y + ((37 - l1) / 2);
             bw = l1;
             bh = rw;
         }
+        revbw = bh;
+        revbh = bw;
         angle = orientation * 90;
         changeDirection();
-        if (orientation == 0 && x - 1 > -((79 - rw) / 2) && left)
+        if (orientation == 0 && x - 1 > -((79 - rw) / 2) && left) {
             x -= 0.5;
-        else if (orientation == 1 && y - 1 > ((79 - rw) / 2) && up)
+            nx = X - 0.5;
+            ny = Y;
+        } else if (orientation == 1 && y - 1 > ((79 - rw) / 2) && up) {
             y -= 0.5;
-        else if (orientation == 2 && x + 1 + rw + ((79 - rw) / 2) < 320 && right)
+            ny = Y - 0.5;
+            nx = X;
+        } else if (orientation == 2 && x + 1 + rw + ((79 - rw) / 2) < 320 && right) {
             x += 0.5;
-        else if (orientation == 3 && y + 1 + rw - ((79 - rw) / 2) < 480 && down)
+            nx = X + 0.5;
+            ny = Y;
+        } else if (orientation == 3 && y + 1 + rw - ((79 - rw) / 2) < 480 && down) {
             y += 0.5;
+            ny = Y + 0.5;
+            nx = X;
+        }
 	}
 
     public function changeDirection() {

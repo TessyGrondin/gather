@@ -1,19 +1,15 @@
-function collide(obs:Obstacle, cro:Croc):Bool {
-  cro.left = true;
-  cro.right = true;
-  cro.up = true;
-  cro.down = true;
-  if (obs.Y > cro.Y + cro.bh || cro.Y > obs.Y + obs.bh)
+function collide(obstacleX, obstacleY, obstacleHeight) {
+  if (obs.Y > cro.ny + cro.bh || cro.ny > obs.Y + obs.bh)
     return false;
-  if (obs.X > cro.X + cro.bw || cro.X > obs.X + cro.bw)
+  if (obs.X > cro.nx + cro.bw || cro.nx > obs.X + obs.bw)
     return false;
-  if (obs.X + cro.bw >= cro.X && obs.X < cro.X)
+  if (obs.X + obs.bw >= cro.nx && obs.X < cro.nx)
     cro.left = false;
-  if (obs.X <= cro.X + cro.bw && obs.X + cro.bw > cro.X)
+  if (obs.X <= cro.nx + cro.bw && obs.X + obs.bw > cro.nx)
     cro.right = false;
-  if (obs.Y <= cro.Y + cro.bh && obs.Y + obs.bh > cro.Y)
+  if (obs.Y <= cro.ny + cro.bh && obs.Y + obs.bh > cro.ny)
     cro.down = false;
-  if (obs.Y + obs.bh >= cro.Y && obs.Y < cro.Y)
+  if (obs.Y + obs.bh >= cro.ny && obs.Y < cro.ny)
     cro.up = false;
   return true;
 }
