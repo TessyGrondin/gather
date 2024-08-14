@@ -73,6 +73,15 @@ class PlayState extends FlxState
 	}
 
 	function collide(obs:Obstacle, cro:Croc):Bool {
+		var ox  = obs.X;
+		var ow = obs.X + obs.bw;
+		var cx = cro.nx;
+		var cw = cro.X + cro.bw;
+		var oy  = obs.Y;
+		var oh = obs.Y + obs.bh;
+		var cy = cro.ny;
+		var ch = cro.Y + cro.bh;
+
 		cro.left = true;
 		cro.right = true;
 		cro.up = true;
@@ -81,14 +90,14 @@ class PlayState extends FlxState
 			return false;
 		if (obs.X > cro.nx + cro.bw || cro.nx > obs.X + obs.bw)
 			return false;
-		if (obs.X + obs.bw >= cro.nx && obs.X < cro.nx)
+		if (ox < cx && ow >= cx && ow < cw)
 			cro.left = false;
-		if (obs.X <= cro.nx + cro.bw && obs.X + obs.bw > cro.nx)
+		if (cx < ox && cw >= ox && cw < ow)
 			cro.right = false;
-		if (obs.Y <= cro.ny + cro.bh && obs.Y + obs.bh > cro.ny)
-			cro.down = false;
-		if (obs.Y + obs.bh >= cro.ny && obs.Y < cro.ny)
+		if (oy < cy && oh >= cy && oh < ch)
 			cro.up = false;
+		if (cy < oy && ch >= oy && ch < oh)
+			cro.down = false;
 		return true;
 	}
 
@@ -115,7 +124,7 @@ class PlayState extends FlxState
 
 		for (i in 0...crocs.length) {
 			if (contain(crocs[i]))
-				score++;
+				score += 100;
 		}
 		return score;
 	}

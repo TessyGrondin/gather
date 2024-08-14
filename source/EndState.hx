@@ -8,6 +8,7 @@ import flixel.util.FlxColor;
 class EndState extends FlxState
 {
 	var score:FlxText;
+	var restart:FlxText;
 	public var finalScore:Int;
 	var tiles:Array<Tile>;
 
@@ -29,6 +30,8 @@ class EndState extends FlxState
 
 		score = new FlxText(320 / 2 - 75, 480 / 2 - 20, 200, "Final result: " + finalScore, 20);
 		add(score);
+		restart = new FlxText(320 / 2 - 60, 480 - 20, 200, "tap to restart", 15);
+		add(restart);
 	}
 
 	override public function update(elapsed:Float)

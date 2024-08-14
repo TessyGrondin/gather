@@ -18,24 +18,21 @@ class Obstacle extends FlxSprite
 		scale.x = 0.75;
 		bw = width * 0.75;
 		bh = height;
+		X = x + 8;
+		Y = y;
         if (reversed) {
 			angle = 90;
 			y -= width / 2;
 			x += width / 2;
 			bh = bw;
 			bw = height;
+			X = x - width / 2;
+			Y = y + width / 2 + 8;
 		}
 	}
 
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
-		if (angle == 90) {
-			X = x - width / 2;
-			Y = y + width / 2;
-		} else {
-			X = x;
-			Y = y;
-		}
 	}
 }

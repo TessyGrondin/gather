@@ -925,7 +925,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "16";
+	app.meta.h["build"] = "21";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "HelloWorld";
 	app.meta.h["name"] = "HelloWorld";
@@ -3522,7 +3522,7 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 });
 var Main = function() {
 	openfl_display_Sprite.call(this);
-	this.addChild(new flixel_FlxGame(0,0,flixel_util_typeLimit_InitialState.fromType(MenuState)));
+	this.addChild(new flixel_FlxGame(0,0,flixel_util_typeLimit_InitialState.fromType(EndState)));
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
@@ -3544,96 +3544,6 @@ DocumentClass.prototype = $extend(Main.prototype,{
 var AssetPaths = function() { };
 $hxClasses["AssetPaths"] = AssetPaths;
 AssetPaths.__name__ = "AssetPaths";
-var EReg = function(r,opt) {
-	this.r = new RegExp(r,opt.split("u").join(""));
-};
-$hxClasses["EReg"] = EReg;
-EReg.__name__ = "EReg";
-EReg.prototype = {
-	r: null
-	,match: function(s) {
-		if(this.r.global) {
-			this.r.lastIndex = 0;
-		}
-		this.r.m = this.r.exec(s);
-		this.r.s = s;
-		return this.r.m != null;
-	}
-	,matched: function(n) {
-		if(this.r.m != null && n >= 0 && n < this.r.m.length) {
-			return this.r.m[n];
-		} else {
-			throw haxe_Exception.thrown("EReg::matched");
-		}
-	}
-	,matchedRight: function() {
-		if(this.r.m == null) {
-			throw haxe_Exception.thrown("No string matched");
-		}
-		var sz = this.r.m.index + this.r.m[0].length;
-		return HxOverrides.substr(this.r.s,sz,this.r.s.length - sz);
-	}
-	,matchedPos: function() {
-		if(this.r.m == null) {
-			throw haxe_Exception.thrown("No string matched");
-		}
-		return { pos : this.r.m.index, len : this.r.m[0].length};
-	}
-	,matchSub: function(s,pos,len) {
-		if(len == null) {
-			len = -1;
-		}
-		if(this.r.global) {
-			this.r.lastIndex = pos;
-			this.r.m = this.r.exec(len < 0 ? s : HxOverrides.substr(s,0,pos + len));
-			var b = this.r.m != null;
-			if(b) {
-				this.r.s = s;
-			}
-			return b;
-		} else {
-			var b = this.match(len < 0 ? HxOverrides.substr(s,pos,null) : HxOverrides.substr(s,pos,len));
-			if(b) {
-				this.r.s = s;
-				this.r.m.index += pos;
-			}
-			return b;
-		}
-	}
-	,split: function(s) {
-		var d = "#__delim__#";
-		return s.replace(this.r,d).split(d);
-	}
-	,map: function(s,f) {
-		var offset = 0;
-		var buf_b = "";
-		do {
-			if(offset >= s.length) {
-				break;
-			} else if(!this.matchSub(s,offset)) {
-				buf_b += Std.string(HxOverrides.substr(s,offset,null));
-				break;
-			}
-			var p = this.matchedPos();
-			buf_b += Std.string(HxOverrides.substr(s,offset,p.pos - offset));
-			buf_b += Std.string(f(this));
-			if(p.len == 0) {
-				buf_b += Std.string(HxOverrides.substr(s,p.pos,1));
-				offset = p.pos + 1;
-			} else {
-				offset = p.pos + p.len;
-			}
-		} while(this.r.global);
-		if(!this.r.global && offset > 0 && offset < s.length) {
-			buf_b += Std.string(HxOverrides.substr(s,offset,null));
-		}
-		return buf_b;
-	}
-	,__class__: EReg
-};
-var HighScore = function() { };
-$hxClasses["HighScore"] = HighScore;
-HighScore.__name__ = "HighScore";
 var flixel_util_IFlxDestroyable = function() { };
 $hxClasses["flixel.util.IFlxDestroyable"] = flixel_util_IFlxDestroyable;
 flixel_util_IFlxDestroyable.__name__ = "flixel.util.IFlxDestroyable";
@@ -3756,1308 +3666,6 @@ flixel_FlxBasic.prototype = {
 	,__class__: flixel_FlxBasic
 	,__properties__: {get_container:"get_container",set_cameras:"set_cameras",get_cameras:"get_cameras",set_camera:"set_camera",get_camera:"get_camera",set_exists:"set_exists",set_alive:"set_alive",set_visible:"set_visible",set_active:"set_active"}
 };
-var flixel_group_FlxTypedGroup = function(MaxSize) {
-	if(MaxSize == null) {
-		MaxSize = 0;
-	}
-	this._marker = 0;
-	this.length = 0;
-	flixel_FlxBasic.call(this);
-	this.members = [];
-	this.set_maxSize(Math.abs(MaxSize) | 0);
-	this.flixelType = 2;
-};
-$hxClasses["flixel.group.FlxTypedGroup"] = flixel_group_FlxTypedGroup;
-flixel_group_FlxTypedGroup.__name__ = "flixel.group.FlxTypedGroup";
-flixel_group_FlxTypedGroup.resolveGroup = function(basic) {
-	if(basic != null) {
-		if(basic.flixelType == 2) {
-			return basic;
-		} else if(basic.flixelType == 4) {
-			return basic.group;
-		}
-	}
-	return null;
-};
-flixel_group_FlxTypedGroup.resolveSelectionGroup = function(basic) {
-	return flixel_group_FlxTypedGroup.resolveGroup(basic);
-};
-flixel_group_FlxTypedGroup.__super__ = flixel_FlxBasic;
-flixel_group_FlxTypedGroup.prototype = $extend(flixel_FlxBasic.prototype,{
-	members: null
-	,maxSize: null
-	,length: null
-	,_memberAdded: null
-	,_memberRemoved: null
-	,_marker: null
-	,destroy: function() {
-		flixel_FlxBasic.prototype.destroy.call(this);
-		flixel_util_FlxDestroyUtil.destroy(this._memberAdded);
-		flixel_util_FlxDestroyUtil.destroy(this._memberRemoved);
-		if(this.members != null) {
-			var count = this.length;
-			while(count-- > 0) {
-				var basic = this.members.shift();
-				if(basic != null) {
-					basic.destroy();
-				}
-			}
-			this.members = null;
-		}
-	}
-	,update: function(elapsed) {
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && basic.exists && basic.active) {
-				basic.update(elapsed);
-			}
-		}
-	}
-	,draw: function() {
-		var oldDefaultCameras = flixel_FlxCamera._defaultCameras;
-		if(this._cameras != null) {
-			flixel_FlxCamera._defaultCameras = this._cameras;
-		}
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && basic.exists && basic.visible) {
-				basic.draw();
-			}
-		}
-		flixel_FlxCamera._defaultCameras = oldDefaultCameras;
-	}
-	,add: function(basic) {
-		if(basic == null) {
-			flixel_FlxG.log.advanced("Cannot add a `null` object to a FlxGroup.",flixel_system_debug_log_LogStyle.WARNING,true);
-			return null;
-		}
-		if(this.members.indexOf(basic) >= 0) {
-			return basic;
-		}
-		var index = this.getFirstNull();
-		if(index != -1) {
-			this.members[index] = basic;
-			if(index >= this.length) {
-				this.length = index + 1;
-			}
-			this.onMemberAdd(basic);
-			return basic;
-		}
-		if(this.maxSize > 0 && this.length >= this.maxSize) {
-			return basic;
-		}
-		this.members.push(basic);
-		this.length++;
-		this.onMemberAdd(basic);
-		return basic;
-	}
-	,insert: function(position,object) {
-		if(object == null) {
-			flixel_FlxG.log.advanced("Cannot insert a `null` object into a FlxGroup.",flixel_system_debug_log_LogStyle.WARNING,true);
-			return null;
-		}
-		if(this.members.indexOf(object) >= 0) {
-			return object;
-		}
-		if(position < this.length && this.members[position] == null) {
-			this.members[position] = object;
-			this.onMemberAdd(object);
-			return object;
-		}
-		if(this.maxSize > 0 && this.length >= this.maxSize) {
-			return object;
-		}
-		this.members.splice(position,0,object);
-		this.length++;
-		this.onMemberAdd(object);
-		return object;
-	}
-	,recycle: function(objectClass,objectFactory,force,revive) {
-		if(revive == null) {
-			revive = true;
-		}
-		if(force == null) {
-			force = false;
-		}
-		var _gthis = this;
-		if(this.maxSize > 0) {
-			if(this.length < this.maxSize) {
-				return objectFactory != null ? _gthis.add(objectFactory()) : objectClass != null ? _gthis.add(Type.createInstance(objectClass,[])) : null;
-			}
-			var basic = this.members[this._marker++];
-			if(this._marker >= this.maxSize) {
-				this._marker = 0;
-			}
-			if(revive) {
-				basic.revive();
-			}
-			return basic;
-		}
-		var basic = this.getFirstAvailable(objectClass,force);
-		if(basic != null) {
-			if(revive) {
-				basic.revive();
-			}
-			return basic;
-		}
-		return objectFactory != null ? _gthis.add(objectFactory()) : objectClass != null ? _gthis.add(Type.createInstance(objectClass,[])) : null;
-	}
-	,remove: function(basic,splice) {
-		if(splice == null) {
-			splice = false;
-		}
-		if(this.members == null) {
-			return null;
-		}
-		var index = this.members.indexOf(basic);
-		if(index < 0) {
-			return null;
-		}
-		if(splice) {
-			this.members.splice(index,1);
-			this.length--;
-		} else {
-			this.members[index] = null;
-		}
-		this.onMemberRemove(basic);
-		return basic;
-	}
-	,replace: function(oldObject,newObject) {
-		var index = this.members.indexOf(oldObject);
-		if(index < 0) {
-			return null;
-		}
-		this.members[index] = newObject;
-		this.onMemberRemove(oldObject);
-		this.onMemberAdd(newObject);
-		return newObject;
-	}
-	,sort: function(func,order) {
-		if(order == null) {
-			order = -1;
-		}
-		var _g = func;
-		var a1 = order;
-		var tmp = function(a2,a3) {
-			return _g(a1,a2,a3);
-		};
-		this.members.sort(tmp);
-	}
-	,getFirst: function(func) {
-		var result = null;
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && func(basic)) {
-				result = basic;
-				break;
-			}
-		}
-		return result;
-	}
-	,getFirstHelper: function(func) {
-		var result = null;
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && func(basic)) {
-				result = basic;
-				break;
-			}
-		}
-		return result;
-	}
-	,getLast: function(func) {
-		var result = null;
-		var i = this.members.length;
-		while(i-- > 0) {
-			var basic = this.members[i];
-			if(basic != null && func(basic)) {
-				result = basic;
-				break;
-			}
-		}
-		return result;
-	}
-	,getFirstIndex: function(func) {
-		var result = -1;
-		var _g_current = 0;
-		var _g_array = this.members;
-		while(_g_current < _g_array.length) {
-			var _g_value = _g_array[_g_current];
-			var _g_key = _g_current++;
-			var i = _g_key;
-			var basic = _g_value;
-			if(basic != null && func(basic)) {
-				result = i;
-				break;
-			}
-		}
-		return result;
-	}
-	,getLastIndex: function(func) {
-		var result = -1;
-		var i = this.members.length;
-		while(i-- > 0) {
-			var basic = this.members[i];
-			if(basic != null && func(basic)) {
-				result = i;
-				break;
-			}
-		}
-		return result;
-	}
-	,any: function(func) {
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && func(basic)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	,every: function(func) {
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && !func(basic)) {
-				return false;
-			}
-		}
-		return true;
-	}
-	,getFirstAvailable: function(objectClass,force) {
-		if(force == null) {
-			force = false;
-		}
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && !basic.exists && (objectClass == null || js_Boot.__instanceof(basic,objectClass))) {
-				var tmp;
-				if(force) {
-					var c = js_Boot.getClass(basic);
-					tmp = c.__name__ != objectClass.__name__;
-				} else {
-					tmp = false;
-				}
-				if(tmp) {
-					continue;
-				}
-				return basic;
-			}
-		}
-		return null;
-	}
-	,getFirstNull: function() {
-		return this.members.indexOf(null);
-	}
-	,getFirstExisting: function() {
-		var result = null;
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && basic.exists) {
-				result = basic;
-				break;
-			}
-		}
-		return result;
-	}
-	,getFirstAlive: function() {
-		var result = null;
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && (basic.exists && basic.alive)) {
-				result = basic;
-				break;
-			}
-		}
-		return result;
-	}
-	,getFirstDead: function() {
-		var result = null;
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && !basic.alive) {
-				result = basic;
-				break;
-			}
-		}
-		return result;
-	}
-	,countLiving: function() {
-		var count = -1;
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null) {
-				if(count < 0) {
-					count = 0;
-				}
-				if(basic.exists && basic.alive) {
-					++count;
-				}
-			}
-		}
-		return count;
-	}
-	,countDead: function() {
-		var count = -1;
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null) {
-				if(count < 0) {
-					count = 0;
-				}
-				if(!basic.alive) {
-					++count;
-				}
-			}
-		}
-		return count;
-	}
-	,getRandom: function(startIndex,length) {
-		if(length == null) {
-			length = 0;
-		}
-		if(startIndex == null) {
-			startIndex = 0;
-		}
-		if(startIndex < 0) {
-			startIndex = 0;
-		}
-		if(length <= 0) {
-			length = this.length;
-		}
-		return flixel_FlxG.random.getObject_flixel_group_FlxTypedGroup_T(this.members,null,startIndex,length);
-	}
-	,clear: function() {
-		this.length = 0;
-		if(this._memberRemoved != null) {
-			var _g = 0;
-			var _g1 = this.members;
-			while(_g < _g1.length) {
-				var member = _g1[_g];
-				++_g;
-				this.onMemberRemove(member);
-			}
-		}
-		flixel_util_FlxArrayUtil.clearArray(this.members);
-	}
-	,killMembers: function() {
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && basic.exists) {
-				basic.kill();
-			}
-		}
-	}
-	,kill: function() {
-		this.killMembers();
-		flixel_FlxBasic.prototype.kill.call(this);
-	}
-	,reviveMembers: function() {
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && !basic.exists) {
-				basic.revive();
-			}
-		}
-	}
-	,revive: function() {
-		this.reviveMembers();
-		flixel_FlxBasic.prototype.revive.call(this);
-	}
-	,iterator: function(filter) {
-		return new flixel_group_FlxTypedGroupIterator(this.members,filter);
-	}
-	,keyValueIterator: function() {
-		return new haxe_iterators_ArrayKeyValueIterator(this.members);
-	}
-	,forEach: function(func,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null) {
-				if(recurse) {
-					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
-					if(group != null) {
-						group.forEach(func,recurse);
-					}
-				}
-				func(basic);
-			}
-		}
-	}
-	,forEachAlive: function(func,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && basic.exists && basic.alive) {
-				if(recurse) {
-					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
-					if(group != null) {
-						group.forEachAlive(func,recurse);
-					}
-				}
-				func(basic);
-			}
-		}
-	}
-	,forEachDead: function(func,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && !basic.alive) {
-				if(recurse) {
-					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
-					if(group != null) {
-						group.forEachDead(func,recurse);
-					}
-				}
-				func(basic);
-			}
-		}
-	}
-	,forEachExists: function(func,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null && basic.exists) {
-				if(recurse) {
-					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
-					if(group != null) {
-						group.forEachExists(func,recurse);
-					}
-				}
-				func(basic);
-			}
-		}
-	}
-	,forEachOfType: function(objectClass,func,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
-		var _g = 0;
-		var _g1 = this.members;
-		while(_g < _g1.length) {
-			var basic = _g1[_g];
-			++_g;
-			if(basic != null) {
-				if(recurse) {
-					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
-					if(group != null) {
-						group.forEachOfType(objectClass,func,recurse);
-					}
-				}
-				if(js_Boot.__instanceof(basic,objectClass)) {
-					func(basic);
-				}
-			}
-		}
-	}
-	,set_maxSize: function(size) {
-		this.maxSize = Math.abs(size) | 0;
-		if(this._marker >= this.maxSize) {
-			this._marker = 0;
-		}
-		if(this.maxSize == 0 || this.members == null || this.maxSize >= this.length) {
-			return this.maxSize;
-		}
-		while(this.length > this.maxSize) {
-			var basic = this.members.splice(this.maxSize - 1,1)[0];
-			if(basic != null) {
-				this.onMemberRemove(basic);
-				basic.destroy();
-			}
-			this.length--;
-		}
-		return this.maxSize;
-	}
-	,onMemberAdd: function(member) {
-		if(this._memberAdded != null) {
-			this._memberAdded.dispatch(member);
-		}
-	}
-	,onMemberRemove: function(member) {
-		if(this._memberRemoved != null) {
-			this._memberRemoved.dispatch(member);
-		}
-	}
-	,get_memberAdded: function() {
-		if(this._memberAdded == null) {
-			this._memberAdded = new flixel_util__$FlxSignal_FlxSignal1();
-		}
-		return this._memberAdded;
-	}
-	,get_memberRemoved: function() {
-		if(this._memberRemoved == null) {
-			this._memberRemoved = new flixel_util__$FlxSignal_FlxSignal1();
-		}
-		return this._memberRemoved;
-	}
-	,__class__: flixel_group_FlxTypedGroup
-	,__properties__: $extend(flixel_FlxBasic.prototype.__properties__,{get_memberRemoved:"get_memberRemoved",get_memberAdded:"get_memberAdded",set_maxSize:"set_maxSize"})
-});
-var flixel_group_FlxTypedContainer = function(maxSize) {
-	if(maxSize == null) {
-		maxSize = 0;
-	}
-	flixel_group_FlxTypedGroup.call(this,maxSize);
-};
-$hxClasses["flixel.group.FlxTypedContainer"] = flixel_group_FlxTypedContainer;
-flixel_group_FlxTypedContainer.__name__ = "flixel.group.FlxTypedContainer";
-flixel_group_FlxTypedContainer.__super__ = flixel_group_FlxTypedGroup;
-flixel_group_FlxTypedContainer.prototype = $extend(flixel_group_FlxTypedGroup.prototype,{
-	onMemberAdd: function(member) {
-		if(member.get_container() != null) {
-			member.get_container().remove(member);
-		}
-		member.container = this;
-		flixel_group_FlxTypedGroup.prototype.onMemberAdd.call(this,member);
-	}
-	,onMemberRemove: function(member) {
-		member.container = null;
-		flixel_group_FlxTypedGroup.prototype.onMemberRemove.call(this,member);
-	}
-	,__class__: flixel_group_FlxTypedContainer
-});
-var flixel_FlxState = function() {
-	this._requestSubStateReset = false;
-	this.destroySubStates = true;
-	this.persistentDraw = true;
-	this.persistentUpdate = false;
-	flixel_group_FlxTypedContainer.call(this,0);
-};
-$hxClasses["flixel.FlxState"] = flixel_FlxState;
-flixel_FlxState.__name__ = "flixel.FlxState";
-flixel_FlxState.__super__ = flixel_group_FlxTypedContainer;
-flixel_FlxState.prototype = $extend(flixel_group_FlxTypedContainer.prototype,{
-	persistentUpdate: null
-	,persistentDraw: null
-	,destroySubStates: null
-	,_constructor: null
-	,subState: null
-	,_requestedSubState: null
-	,_requestSubStateReset: null
-	,_subStateOpened: null
-	,_subStateClosed: null
-	,create: function() {
-	}
-	,draw: function() {
-		if(this.persistentDraw || this.subState == null) {
-			flixel_group_FlxTypedContainer.prototype.draw.call(this);
-		}
-		if(this.subState != null) {
-			this.subState.draw();
-		}
-	}
-	,openSubState: function(SubState) {
-		this._requestSubStateReset = true;
-		this._requestedSubState = SubState;
-	}
-	,closeSubState: function() {
-		this._requestSubStateReset = true;
-	}
-	,resetSubState: function() {
-		if(this.subState != null) {
-			if(this.subState.closeCallback != null) {
-				this.subState.closeCallback();
-			}
-			if(this._subStateClosed != null) {
-				this._subStateClosed.dispatch(this.subState);
-			}
-			if(this.destroySubStates) {
-				this.subState.destroy();
-			}
-		}
-		this.subState = this._requestedSubState;
-		this._requestedSubState = null;
-		if(this.subState != null) {
-			if(!this.persistentUpdate) {
-				flixel_FlxG.inputs.onStateSwitch();
-			}
-			this.subState._parentState = this;
-			if(!this.subState._created) {
-				this.subState._created = true;
-				this.subState.create();
-			}
-			if(this.subState.openCallback != null) {
-				this.subState.openCallback();
-			}
-			if(this._subStateOpened != null) {
-				this._subStateOpened.dispatch(this.subState);
-			}
-		}
-	}
-	,destroy: function() {
-		this._constructor = flixel_util_typeLimit_NextState.fromMaker(function() {
-			throw haxe_Exception.thrown("Attempting to resetState while the current state is destroyed");
-		});
-		flixel_util_FlxDestroyUtil.destroy(this._subStateOpened);
-		flixel_util_FlxDestroyUtil.destroy(this._subStateClosed);
-		if(this.subState != null) {
-			this.subState.destroy();
-			this.subState = null;
-		}
-		flixel_group_FlxTypedContainer.prototype.destroy.call(this);
-	}
-	,switchTo: function(nextState) {
-		return true;
-	}
-	,startOutro: function(onOutroComplete) {
-		onOutroComplete();
-	}
-	,onFocusLost: function() {
-	}
-	,onFocus: function() {
-	}
-	,onResize: function(Width,Height) {
-	}
-	,tryUpdate: function(elapsed) {
-		if(this.persistentUpdate || this.subState == null) {
-			this.update(elapsed);
-		}
-		if(this._requestSubStateReset) {
-			this._requestSubStateReset = false;
-			this.resetSubState();
-		}
-		if(this.subState != null) {
-			this.subState.tryUpdate(elapsed);
-		}
-	}
-	,get_bgColor: function() {
-		return flixel_FlxG.cameras.get_bgColor();
-	}
-	,set_bgColor: function(Value) {
-		return flixel_FlxG.cameras.set_bgColor(Value);
-	}
-	,get_subStateOpened: function() {
-		if(this._subStateOpened == null) {
-			this._subStateOpened = new flixel_util__$FlxSignal_FlxSignal1();
-		}
-		return this._subStateOpened;
-	}
-	,get_subStateClosed: function() {
-		if(this._subStateClosed == null) {
-			this._subStateClosed = new flixel_util__$FlxSignal_FlxSignal1();
-		}
-		return this._subStateClosed;
-	}
-	,__class__: flixel_FlxState
-	,__properties__: $extend(flixel_group_FlxTypedContainer.prototype.__properties__,{get_subStateClosed:"get_subStateClosed",get_subStateOpened:"get_subStateOpened",set_bgColor:"set_bgColor",get_bgColor:"get_bgColor"})
-});
-var EndState = function(finalScore) {
-	flixel_FlxState.call(this);
-	this.finalScore = finalScore;
-};
-$hxClasses["EndState"] = EndState;
-EndState.__name__ = "EndState";
-EndState.__super__ = flixel_FlxState;
-EndState.prototype = $extend(flixel_FlxState.prototype,{
-	background: null
-	,score: null
-	,finalScore: null
-	,create: function() {
-		flixel_FlxState.prototype.create.call(this);
-		this.background = new flixel_FlxSprite();
-		this.background.loadGraphic("assets/images/background.png",true,320,480);
-		this.add(this.background);
-		var tmp;
-		if(HighScore.s1 < HighScore.s2 && HighScore.s2 >= HighScore.s3) {
-			tmp = HighScore.s1;
-			HighScore.s1 = HighScore.s2;
-			HighScore.s2 = tmp;
-		} else if(HighScore.s1 >= HighScore.s2 && HighScore.s2 < HighScore.s3) {
-			tmp = HighScore.s2;
-			HighScore.s2 = HighScore.s3;
-			HighScore.s3 = tmp;
-		} else if(HighScore.s1 < HighScore.s2 && HighScore.s2 < HighScore.s3) {
-			tmp = HighScore.s1;
-			HighScore.s1 = HighScore.s3;
-			HighScore.s3 = tmp;
-		}
-		if(this.finalScore > HighScore.s1) {
-			HighScore.s3 = HighScore.s2;
-			HighScore.s2 = HighScore.s1;
-			HighScore.s1 = this.finalScore;
-		} else if(this.finalScore > HighScore.s2) {
-			HighScore.s3 = HighScore.s2;
-			HighScore.s2 = this.finalScore;
-		} else if(this.finalScore > HighScore.s3) {
-			HighScore.s3 = this.finalScore;
-		}
-		this.score = new flixel_text_FlxText(100,20,200,"Final result: " + this.finalScore + "\n\n\nHigh scores :\n" + HighScore.s1 + "\n" + HighScore.s2 + "\n" + HighScore.s3,20);
-		this.add(this.score);
-	}
-	,update: function(elapsed) {
-		flixel_FlxState.prototype.update.call(this,elapsed);
-		if(flixel_FlxG.mouse._leftButton.current == 2) {
-			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
-				var nextState = flixel_util_typeLimit_NextState.fromState(new MenuState());
-				var stateOnCall = flixel_FlxG.game._state;
-				if(!((nextState) instanceof flixel_FlxState) || flixel_FlxG.canSwitchTo(nextState)) {
-					flixel_FlxG.game._state.startOutro(function() {
-						if(flixel_FlxG.game._state == stateOnCall) {
-							flixel_FlxG.game._nextState = nextState;
-						} else {
-							flixel_FlxG.log.advanced("`onOutroComplete` was called after the state was switched. This will be ignored",flixel_system_debug_log_LogStyle.WARNING,true);
-						}
-					});
-				}
-			});
-		}
-	}
-	,__class__: EndState
-});
-var HxOverrides = function() { };
-$hxClasses["HxOverrides"] = HxOverrides;
-HxOverrides.__name__ = "HxOverrides";
-HxOverrides.strDate = function(s) {
-	switch(s.length) {
-	case 8:
-		var k = s.split(":");
-		var d = new Date();
-		d["setTime"](0);
-		d["setUTCHours"](k[0]);
-		d["setUTCMinutes"](k[1]);
-		d["setUTCSeconds"](k[2]);
-		return d;
-	case 10:
-		var k = s.split("-");
-		return new Date(k[0],k[1] - 1,k[2],0,0,0);
-	case 19:
-		var k = s.split(" ");
-		var y = k[0].split("-");
-		var t = k[1].split(":");
-		return new Date(y[0],y[1] - 1,y[2],t[0],t[1],t[2]);
-	default:
-		throw haxe_Exception.thrown("Invalid date format : " + s);
-	}
-};
-HxOverrides.cca = function(s,index) {
-	var x = s.charCodeAt(index);
-	if(x != x) {
-		return undefined;
-	}
-	return x;
-};
-HxOverrides.substr = function(s,pos,len) {
-	if(len == null) {
-		len = s.length;
-	} else if(len < 0) {
-		if(pos == 0) {
-			len = s.length + len;
-		} else {
-			return "";
-		}
-	}
-	return s.substr(pos,len);
-};
-HxOverrides.remove = function(a,obj) {
-	var i = a.indexOf(obj);
-	if(i == -1) {
-		return false;
-	}
-	a.splice(i,1);
-	return true;
-};
-HxOverrides.now = function() {
-	return Date.now();
-};
-var IntIterator = function(min,max) {
-	this.min = min;
-	this.max = max;
-};
-$hxClasses["IntIterator"] = IntIterator;
-IntIterator.__name__ = "IntIterator";
-IntIterator.prototype = {
-	min: null
-	,max: null
-	,hasNext: function() {
-		return this.min < this.max;
-	}
-	,next: function() {
-		return this.min++;
-	}
-	,__class__: IntIterator
-};
-var Lambda = function() { };
-$hxClasses["Lambda"] = Lambda;
-Lambda.__name__ = "Lambda";
-Lambda.array = function(it) {
-	var a = [];
-	var i = $getIterator(it);
-	while(i.hasNext()) {
-		var i1 = i.next();
-		a.push(i1);
-	}
-	return a;
-};
-var ManifestResources = function() { };
-$hxClasses["ManifestResources"] = ManifestResources;
-ManifestResources.__name__ = "ManifestResources";
-ManifestResources.preloadLibraries = null;
-ManifestResources.preloadLibraryNames = null;
-ManifestResources.rootPath = null;
-ManifestResources.init = function(config) {
-	ManifestResources.preloadLibraries = [];
-	ManifestResources.preloadLibraryNames = [];
-	ManifestResources.rootPath = null;
-	if(config != null && Object.prototype.hasOwnProperty.call(config,"rootPath")) {
-		ManifestResources.rootPath = Reflect.field(config,"rootPath");
-		if(!StringTools.endsWith(ManifestResources.rootPath,"/")) {
-			ManifestResources.rootPath += "/";
-		}
-	}
-	if(ManifestResources.rootPath == null) {
-		ManifestResources.rootPath = "./";
-	}
-	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
-	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
-	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy34:assets%2Fdata%2Fdata-goes-here.txty4:sizezy4:typey4:TEXTy2:idR1y7:preloadtgoR0y32:assets%2Fimages%2Fbackground.pngR2i17935R3y5:IMAGER5R7R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R9R6tgoR0y26:assets%2Fimages%2Fmole.pngR2i1056R3R8R5R10R6tgoR0y30:assets%2Fimages%2Fmole_var.pngR2i1047R3R8R5R11R6tgoR0y27:assets%2Fimages%2Fscore.pngR2i475R3R8R5R12R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R13R6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R14R6tgoR2i8220R3y5:MUSICR5y26:flixel%2Fsounds%2Fbeep.mp3y9:pathGroupaR16y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R15R5y28:flixel%2Fsounds%2Fflixel.mp3R17aR19y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i6840R3y5:SOUNDR5R18R17aR16R18hgoR2i33629R3R21R5R20R17aR19R20hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R22R23y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i277R3R8R5R28R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i505R3R8R5R29R6tgoR0y42:flixel%2Fimages%2Ftransitions%2Fcircle.pngR2i824R3R8R5R30R6tgoR0y53:flixel%2Fimages%2Ftransitions%2Fdiagonal_gradient.pngR2i3812R3R8R5R31R6tgoR0y43:flixel%2Fimages%2Ftransitions%2Fdiamond.pngR2i788R3R8R5R32R6tgoR0y42:flixel%2Fimages%2Ftransitions%2Fsquare.pngR2i383R3R8R5R33R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
-	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
-	var library = lime_utils_AssetLibrary.fromManifest(manifest);
-	lime_utils_Assets.registerLibrary("default",library);
-	library = lime_utils_Assets.getLibrary("default");
-	if(library != null) {
-		ManifestResources.preloadLibraries.push(library);
-	} else {
-		ManifestResources.preloadLibraryNames.push("default");
-	}
-};
-var lime_text_Font = function(name) {
-	if(name != null) {
-		this.name = name;
-	}
-	if(!this.__init) {
-		if(this.ascender == undefined) {
-			this.ascender = 0;
-		}
-		if(this.descender == undefined) {
-			this.descender = 0;
-		}
-		if(this.height == undefined) {
-			this.height = 0;
-		}
-		if(this.numGlyphs == undefined) {
-			this.numGlyphs = 0;
-		}
-		if(this.underlinePosition == undefined) {
-			this.underlinePosition = 0;
-		}
-		if(this.underlineThickness == undefined) {
-			this.underlineThickness = 0;
-		}
-		if(this.unitsPerEM == undefined) {
-			this.unitsPerEM = 0;
-		}
-		if(this.__fontID != null) {
-			if(lime_utils_Assets.isLocal(this.__fontID)) {
-				this.__fromBytes(lime_utils_Assets.getBytes(this.__fontID));
-			}
-		} else if(this.__fontPath != null) {
-			this.__fromFile(this.__fontPath);
-		}
-	}
-};
-$hxClasses["lime.text.Font"] = lime_text_Font;
-lime_text_Font.__name__ = "lime.text.Font";
-lime_text_Font.fromBytes = function(bytes) {
-	if(bytes == null) {
-		return null;
-	}
-	var font = new lime_text_Font();
-	font.__fromBytes(bytes);
-	return font;
-};
-lime_text_Font.fromFile = function(path) {
-	if(path == null) {
-		return null;
-	}
-	var font = new lime_text_Font();
-	font.__fromFile(path);
-	return font;
-};
-lime_text_Font.loadFromBytes = function(bytes) {
-	return lime_app_Future.withValue(lime_text_Font.fromBytes(bytes));
-};
-lime_text_Font.loadFromFile = function(path) {
-	var request = new lime_net__$HTTPRequest_$lime_$text_$Font();
-	return request.load(path).then(function(font) {
-		if(font != null) {
-			return lime_app_Future.withValue(font);
-		} else {
-			return lime_app_Future.withError("");
-		}
-	});
-};
-lime_text_Font.loadFromName = function(path) {
-	var font = new lime_text_Font();
-	return font.__loadFromName(path);
-};
-lime_text_Font.__measureFontNode = function(fontFamily) {
-	var node = window.document.createElement("span");
-	node.setAttribute("aria-hidden","true");
-	var text = window.document.createTextNode("BESbswy");
-	node.appendChild(text);
-	var style = node.style;
-	style.display = "block";
-	style.position = "absolute";
-	style.top = "-9999px";
-	style.left = "-9999px";
-	style.fontSize = "300px";
-	style.width = "auto";
-	style.height = "auto";
-	style.lineHeight = "normal";
-	style.margin = "0";
-	style.padding = "0";
-	style.fontVariant = "normal";
-	style.whiteSpace = "nowrap";
-	style.fontFamily = fontFamily;
-	window.document.body.appendChild(node);
-	return node;
-};
-lime_text_Font.prototype = {
-	ascender: null
-	,descender: null
-	,height: null
-	,name: null
-	,numGlyphs: null
-	,src: null
-	,underlinePosition: null
-	,underlineThickness: null
-	,unitsPerEM: null
-	,__fontID: null
-	,__fontPath: null
-	,__init: null
-	,decompose: function() {
-		return null;
-	}
-	,getGlyph: function(character) {
-		return -1;
-	}
-	,getGlyphs: function(characters) {
-		if(characters == null) {
-			characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ";
-		}
-		return null;
-	}
-	,getGlyphMetrics: function(glyph) {
-		return null;
-	}
-	,renderGlyph: function(glyph,fontSize) {
-		return null;
-	}
-	,renderGlyphs: function(glyphs,fontSize) {
-		return null;
-	}
-	,__copyFrom: function(other) {
-		if(other != null) {
-			this.ascender = other.ascender;
-			this.descender = other.descender;
-			this.height = other.height;
-			this.name = other.name;
-			this.numGlyphs = other.numGlyphs;
-			this.src = other.src;
-			this.underlinePosition = other.underlinePosition;
-			this.underlineThickness = other.underlineThickness;
-			this.unitsPerEM = other.unitsPerEM;
-			this.__fontID = other.__fontID;
-			this.__fontPath = other.__fontPath;
-			this.__init = true;
-		}
-	}
-	,__fromBytes: function(bytes) {
-		this.__fontPath = null;
-	}
-	,__fromFile: function(path) {
-		this.__fontPath = path;
-	}
-	,__initializeSource: function() {
-		this.__init = true;
-	}
-	,__loadFromName: function(name) {
-		var _gthis = this;
-		var promise = new lime_app_Promise();
-		this.name = name;
-		var userAgent = $global.navigator.userAgent.toLowerCase();
-		var isSafari = userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0;
-		var isUIWebView = new EReg("(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)","i").match(userAgent);
-		if(!isSafari && !isUIWebView && (window.document.fonts && ($_=window.document.fonts,$bind($_,$_.load)))) {
-			window.document.fonts.load("1em '" + name + "'").then(function(_) {
-				promise.complete(_gthis);
-			},function(_) {
-				lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 515, className : "lime.text.Font", methodName : "__loadFromName"});
-				promise.complete(_gthis);
-			});
-		} else {
-			var node1 = lime_text_Font.__measureFontNode("'" + name + "', sans-serif");
-			var node2 = lime_text_Font.__measureFontNode("'" + name + "', serif");
-			var width1 = node1.offsetWidth;
-			var width2 = node2.offsetWidth;
-			var interval = -1;
-			var timeout = 3000;
-			var intervalLength = 50;
-			var intervalCount = 0;
-			var loaded;
-			var timeExpired;
-			var checkFont = function() {
-				intervalCount += 1;
-				loaded = node1.offsetWidth != width1 || node2.offsetWidth != width2;
-				timeExpired = intervalCount * intervalLength >= timeout;
-				if(loaded || timeExpired) {
-					window.clearInterval(interval);
-					node1.parentNode.removeChild(node1);
-					node2.parentNode.removeChild(node2);
-					node1 = null;
-					node2 = null;
-					if(timeExpired) {
-						lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 550, className : "lime.text.Font", methodName : "__loadFromName"});
-					}
-					promise.complete(_gthis);
-				}
-			};
-			interval = window.setInterval(checkFont,intervalLength);
-		}
-		return promise.future;
-	}
-	,__setSize: function(size) {
-	}
-	,__class__: lime_text_Font
-};
-var _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf = $hx_exports["__ASSET__flixel_fonts_nokiafc22_ttf"] = function() {
-	this.ascender = 2048;
-	this.descender = -512;
-	this.height = 2816;
-	this.numGlyphs = 172;
-	this.underlinePosition = -640;
-	this.underlineThickness = 256;
-	this.unitsPerEM = 2048;
-	this.name = "Nokia Cellphone FC Small";
-	lime_text_Font.call(this);
-};
-$hxClasses["__ASSET__flixel_fonts_nokiafc22_ttf"] = _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf;
-_$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf.__name__ = "__ASSET__flixel_fonts_nokiafc22_ttf";
-_$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf.__super__ = lime_text_Font;
-_$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf.prototype = $extend(lime_text_Font.prototype,{
-	__class__: _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf
-});
-var _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf = $hx_exports["__ASSET__flixel_fonts_monsterrat_ttf"] = function() {
-	this.ascender = 968;
-	this.descender = -251;
-	this.height = 1219;
-	this.numGlyphs = 263;
-	this.underlinePosition = -150;
-	this.underlineThickness = 50;
-	this.unitsPerEM = 1000;
-	this.name = "Monsterrat";
-	lime_text_Font.call(this);
-};
-$hxClasses["__ASSET__flixel_fonts_monsterrat_ttf"] = _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf;
-_$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf.__name__ = "__ASSET__flixel_fonts_monsterrat_ttf";
-_$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf.__super__ = lime_text_Font;
-_$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf.prototype = $extend(lime_text_Font.prototype,{
-	__class__: _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf
-});
-var openfl_text_Font = function(name) {
-	lime_text_Font.call(this,name);
-};
-$hxClasses["openfl.text.Font"] = openfl_text_Font;
-openfl_text_Font.__name__ = "openfl.text.Font";
-openfl_text_Font.enumerateFonts = function(enumerateDeviceFonts) {
-	if(enumerateDeviceFonts == null) {
-		enumerateDeviceFonts = false;
-	}
-	return openfl_text_Font.__registeredFonts;
-};
-openfl_text_Font.fromBytes = function(bytes) {
-	var font = new openfl_text_Font();
-	font.__fromBytes(openfl_utils_ByteArray.toBytes(bytes));
-	return font;
-};
-openfl_text_Font.fromFile = function(path) {
-	if(path == null) {
-		return null;
-	}
-	var font = new openfl_text_Font();
-	font.__fromFile(path);
-	return font;
-};
-openfl_text_Font.loadFromBytes = function(bytes) {
-	return lime_text_Font.loadFromBytes(openfl_utils_ByteArray.toBytes(bytes)).then(function(limeFont) {
-		var font = new openfl_text_Font();
-		font.__fromLimeFont(limeFont);
-		return lime_app_Future.withValue(font);
-	});
-};
-openfl_text_Font.loadFromFile = function(path) {
-	return lime_text_Font.loadFromFile(path).then(function(limeFont) {
-		var font = new openfl_text_Font();
-		font.__fromLimeFont(limeFont);
-		return lime_app_Future.withValue(font);
-	});
-};
-openfl_text_Font.loadFromName = function(path) {
-	return lime_text_Font.loadFromName(path).then(function(limeFont) {
-		var font = new openfl_text_Font();
-		font.__fromLimeFont(limeFont);
-		return lime_app_Future.withValue(font);
-	});
-};
-openfl_text_Font.registerFont = function(font) {
-	var instance = null;
-	if(js_Boot.getClass(font) == null) {
-		instance = js_Boot.__cast(Type.createInstance(font,[]) , openfl_text_Font);
-	} else {
-		instance = js_Boot.__cast(font , openfl_text_Font);
-	}
-	if(instance != null) {
-		openfl_text_Font.__registeredFonts.push(instance);
-		openfl_text_Font.__fontByName.h[instance.name] = instance;
-	}
-};
-openfl_text_Font.__super__ = lime_text_Font;
-openfl_text_Font.prototype = $extend(lime_text_Font.prototype,{
-	fontStyle: null
-	,fontType: null
-	,__initialized: null
-	,__fromLimeFont: function(font) {
-		this.__copyFrom(font);
-	}
-	,__initialize: function() {
-		return this.__initialized;
-	}
-	,get_fontName: function() {
-		return this.name;
-	}
-	,set_fontName: function(value) {
-		return this.name = value;
-	}
-	,__class__: openfl_text_Font
-	,__properties__: {set_fontName:"set_fontName",get_fontName:"get_fontName"}
-});
-var _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf = $hx_exports["__ASSET__OPENFL__flixel_fonts_nokiafc22_ttf"] = function() {
-	this.__fromLimeFont(new _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf());
-	openfl_text_Font.call(this);
-};
-$hxClasses["__ASSET__OPENFL__flixel_fonts_nokiafc22_ttf"] = _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf;
-_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf.__name__ = "__ASSET__OPENFL__flixel_fonts_nokiafc22_ttf";
-_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf.__super__ = openfl_text_Font;
-_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf.prototype = $extend(openfl_text_Font.prototype,{
-	__class__: _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf
-});
-var _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf = $hx_exports["__ASSET__OPENFL__flixel_fonts_monsterrat_ttf"] = function() {
-	this.__fromLimeFont(new _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf());
-	openfl_text_Font.call(this);
-};
-$hxClasses["__ASSET__OPENFL__flixel_fonts_monsterrat_ttf"] = _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf;
-_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf.__name__ = "__ASSET__OPENFL__flixel_fonts_monsterrat_ttf";
-_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf.__super__ = openfl_text_Font;
-_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf.prototype = $extend(openfl_text_Font.prototype,{
-	__class__: _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf
-});
-Math.__name__ = "Math";
-var MenuState = function() {
-	this.blinkTime = 0;
-	flixel_FlxState.call(this);
-};
-$hxClasses["MenuState"] = MenuState;
-MenuState.__name__ = "MenuState";
-MenuState.__super__ = flixel_FlxState;
-MenuState.prototype = $extend(flixel_FlxState.prototype,{
-	background: null
-	,title: null
-	,blinkTime: null
-	,create: function() {
-		flixel_FlxState.prototype.create.call(this);
-		this.background = new flixel_FlxSprite();
-		this.background.loadGraphic("assets/images/background.png",true,320,480);
-		this.add(this.background);
-		var buttonPlay = new flixel_addons_ui_FlxButtonPlus(0,0,function() {
-			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
-				var nextState = flixel_util_typeLimit_NextState.fromState(new PlayState());
-				var stateOnCall = flixel_FlxG.game._state;
-				if(!((nextState) instanceof flixel_FlxState) || flixel_FlxG.canSwitchTo(nextState)) {
-					flixel_FlxG.game._state.startOutro(function() {
-						if(flixel_FlxG.game._state == stateOnCall) {
-							flixel_FlxG.game._nextState = nextState;
-						} else {
-							flixel_FlxG.log.advanced("`onOutroComplete` was called after the state was switched. This will be ignored",flixel_system_debug_log_LogStyle.WARNING,true);
-						}
-					});
-				}
-			});
-		},"PLAY",176,32);
-		buttonPlay.set_x(flixel_FlxG.width / 2 - buttonPlay.get_width() / 2);
-		buttonPlay.set_y(flixel_FlxG.height / 2 - buttonPlay.get_height() / 2 + 30);
-		buttonPlay.textNormal.set_y(buttonPlay.y + 10);
-		buttonPlay.textHighlight.set_y(buttonPlay.y + 10);
-		this.add(buttonPlay);
-	}
-	,update: function(elapsed) {
-		flixel_FlxState.prototype.update.call(this,elapsed);
-	}
-	,__class__: MenuState
-});
 var flixel_util_IFlxPooled = function() { };
 $hxClasses["flixel.util.IFlxPooled"] = flixel_util_IFlxPooled;
 flixel_util_IFlxPooled.__name__ = "flixel.util.IFlxPooled";
@@ -8370,40 +6978,1570 @@ flixel_FlxSprite.prototype = $extend(flixel_FlxObject.prototype,{
 	,__class__: flixel_FlxSprite
 	,__properties__: $extend(flixel_FlxObject.prototype.__properties__,{set_clipRect:"set_clipRect",set_color:"set_color",set_blend:"set_blend",set_flipY:"set_flipY",set_flipX:"set_flipX",set_facing:"set_facing",set_alpha:"set_alpha",set_graphic:"set_graphic",set_frames:"set_frames",get_numFrames:"get_numFrames",set_frame:"set_frame",set_pixels:"set_pixels",get_pixels:"get_pixels",set_antialiasing:"set_antialiasing",set_useFramePixels:"set_useFramePixels"})
 });
-var Mole = function(scaleF,x,y,rarity) {
-	this.touched = false;
-	this.value = 300;
-	flixel_FlxSprite.call(this,x,y);
-	if(rarity == 0) {
-		this.loadGraphic("assets/images/mole_var.png",true,56,64);
-	} else {
-		this.loadGraphic("assets/images/mole.png",true,56,64);
-		this.value = 100;
-	}
-	this.set_x(x);
-	this.set_y(y);
+var Croc = function(relX,relY) {
+	this.rw = 59.25;
+	this.l2 = 13.5;
+	this.L2 = 30.75;
+	this.l1 = 27.75;
+	this.L1 = 14.25;
+	this.down = true;
+	this.up = true;
+	this.right = true;
+	this.left = true;
+	flixel_FlxSprite.call(this,relX * 32 - (79 - this.rw) / 2,relY * 32 - (37 - this.l1) / 2);
+	this.loadGraphic("assets/images/croc.png",true,79,37);
 	this.updateHitbox();
-	this.animation.add("up",[0,1,2,3],5,false);
-	this.animation.add("down",[3,2,1,0],5,false);
-	this.animation.add("full_down",[0]);
-	this.animation.play("full_down");
-	this.scale.set_x(scaleF);
-	this.scale.set_y(scaleF);
+	this.scale.set_x(0.75);
+	this.scale.set_y(0.75);
+	this.set_x(relX * 32 - (79 - this.rw) / 2);
+	this.set_y(relY * 32 - (37 - this.l1) / 2);
+	this.animation.add("swim",[0,1,2,3],10,true);
+	this.animation.play("swim");
+	var ran = new flixel_math_FlxRandom();
+	this.orientation = ran.int(0,3);
+	this.nx = this.x;
+	this.ny = this.y;
+	this.bw = this.rw;
+	this.bh = this.l1;
+	this.revbw = this.bh;
+	this.revbh = this.bw;
+	if(this.orientation == 0) {
+		this.nx = this.x - 0.5;
+	} else if(this.orientation == 1) {
+		this.ny = this.y - 0.5;
+	} else if(this.orientation == 2) {
+		this.nx = this.x + 0.5;
+	} else if(this.orientation == 3) {
+		this.ny = this.y + 0.5;
+	}
+	this.timer = new flixel_util_FlxTimer();
+	this.timer.start(5,$bind(this,this.changeOrientation),0);
 };
-$hxClasses["Mole"] = Mole;
-Mole.__name__ = "Mole";
-Mole.__super__ = flixel_FlxSprite;
-Mole.prototype = $extend(flixel_FlxSprite.prototype,{
-	value: null
-	,touched: null
+$hxClasses["Croc"] = Croc;
+Croc.__name__ = "Croc";
+Croc.__super__ = flixel_FlxSprite;
+Croc.prototype = $extend(flixel_FlxSprite.prototype,{
+	orientation: null
+	,left: null
+	,right: null
+	,up: null
+	,down: null
+	,L1: null
+	,l1: null
+	,L2: null
+	,l2: null
+	,rw: null
+	,X: null
+	,Y: null
+	,bw: null
+	,bh: null
+	,revX: null
+	,revY: null
+	,revbw: null
+	,revbh: null
+	,nx: null
+	,ny: null
+	,timer: null
+	,update: function(elapsed) {
+		flixel_FlxSprite.prototype.update.call(this,elapsed);
+		if(this.orientation == 0 || this.orientation == 2) {
+			this.X = this.x + (79 - this.rw) / 2;
+			this.Y = this.y + (37 - this.l1) / 2;
+			this.revX = this.x + this.l1;
+			this.revY = this.y - this.L1;
+			this.bw = this.rw;
+			this.bh = this.l1;
+		} else {
+			this.X = this.x + this.l1;
+			this.Y = this.y - this.L1;
+			this.revX = this.x + (79 - this.rw) / 2;
+			this.revY = this.y + (37 - this.l1) / 2;
+			this.bw = this.l1;
+			this.bh = this.rw;
+		}
+		this.revbw = this.bh;
+		this.revbh = this.bw;
+		this.set_angle(this.orientation * 90);
+		this.changeDirection();
+		if(this.orientation == 0 && this.x - 1 > -((79 - this.rw) / 2) && this.left) {
+			this.set_x(this.x - 0.5);
+			this.nx = this.X - 0.5;
+			this.ny = this.Y;
+		} else if(this.orientation == 1 && this.y - 1 > (79 - this.rw) / 2 && this.up) {
+			this.set_y(this.y - 0.5);
+			this.ny = this.Y - 0.5;
+			this.nx = this.X;
+		} else if(this.orientation == 2 && this.x + 1 + this.rw + (79 - this.rw) / 2 < 320 && this.right) {
+			this.set_x(this.x + 0.5);
+			this.nx = this.X + 0.5;
+			this.ny = this.Y;
+		} else if(this.orientation == 3 && this.y + 1 + this.rw - (79 - this.rw) / 2 < 480 && this.down) {
+			this.set_y(this.y + 0.5);
+			this.ny = this.Y + 0.5;
+			this.nx = this.X;
+		}
+	}
+	,changeDirection: function() {
+		if(flixel_FlxG.mouse._leftButton.current != 2) {
+			return;
+		}
+		if(this.orientation == 0 || this.orientation == 2) {
+			if(flixel_FlxG.mouse.x < this.X || flixel_FlxG.mouse.x > this.X + this.rw || flixel_FlxG.mouse.y < this.y || flixel_FlxG.mouse.y > this.y + this.l1) {
+				return;
+			}
+			if(flixel_FlxG.mouse.x > this.X + this.L1 + this.L2 && flixel_FlxG.mouse.x < this.X + this.rw && flixel_FlxG.mouse.y > this.y && flixel_FlxG.mouse.y < this.y + this.l1) {
+				this.orientation = 0;
+			}
+			if(flixel_FlxG.mouse.x > this.X + this.L1 && flixel_FlxG.mouse.x < this.X + this.L1 + this.L2 && flixel_FlxG.mouse.y > this.y + this.L1 && flixel_FlxG.mouse.y < this.y + this.l1) {
+				this.orientation = 1;
+			}
+			if(flixel_FlxG.mouse.x > this.X && flixel_FlxG.mouse.x < this.X + this.L1 && flixel_FlxG.mouse.y > this.y && flixel_FlxG.mouse.y < this.y + this.l1) {
+				this.orientation = 2;
+			}
+			if(flixel_FlxG.mouse.x > this.X + this.L1 && flixel_FlxG.mouse.x < this.X + this.L1 + this.L2 && flixel_FlxG.mouse.y > this.y && flixel_FlxG.mouse.y < this.y + this.l2) {
+				this.orientation = 3;
+			}
+		} else {
+			if(flixel_FlxG.mouse.x < this.X || flixel_FlxG.mouse.x > this.X + this.l1 || flixel_FlxG.mouse.y < this.y - this.L1 || flixel_FlxG.mouse.y > this.y + this.L1 + this.L2) {
+				return;
+			}
+			if(flixel_FlxG.mouse.x > this.X + this.L1 && flixel_FlxG.mouse.x < this.X + this.l1 && flixel_FlxG.mouse.y > this.y && flixel_FlxG.mouse.y < this.y + this.L2) {
+				this.orientation = 0;
+			}
+			if(flixel_FlxG.mouse.x > this.X && flixel_FlxG.mouse.x < this.X + this.l1 && flixel_FlxG.mouse.y > this.y + this.L2 && flixel_FlxG.mouse.y < this.y + this.L1 + this.L2) {
+				this.orientation = 1;
+			}
+			if(flixel_FlxG.mouse.x > this.X && flixel_FlxG.mouse.x < this.X + this.l2 && flixel_FlxG.mouse.y > this.y && flixel_FlxG.mouse.y < this.y + this.L2) {
+				this.orientation = 2;
+			}
+			if(flixel_FlxG.mouse.x > this.X && flixel_FlxG.mouse.x < this.X + this.l1 && flixel_FlxG.mouse.y > this.y - this.L1 && flixel_FlxG.mouse.y < this.y) {
+				this.orientation = 3;
+			}
+		}
+	}
+	,changeOrientation: function(_) {
+		var ran = new flixel_math_FlxRandom();
+		this.orientation = ran.int(0,3);
+	}
+	,__class__: Croc
+});
+var EReg = function(r,opt) {
+	this.r = new RegExp(r,opt.split("u").join(""));
+};
+$hxClasses["EReg"] = EReg;
+EReg.__name__ = "EReg";
+EReg.prototype = {
+	r: null
+	,match: function(s) {
+		if(this.r.global) {
+			this.r.lastIndex = 0;
+		}
+		this.r.m = this.r.exec(s);
+		this.r.s = s;
+		return this.r.m != null;
+	}
+	,matched: function(n) {
+		if(this.r.m != null && n >= 0 && n < this.r.m.length) {
+			return this.r.m[n];
+		} else {
+			throw haxe_Exception.thrown("EReg::matched");
+		}
+	}
+	,matchedRight: function() {
+		if(this.r.m == null) {
+			throw haxe_Exception.thrown("No string matched");
+		}
+		var sz = this.r.m.index + this.r.m[0].length;
+		return HxOverrides.substr(this.r.s,sz,this.r.s.length - sz);
+	}
+	,matchedPos: function() {
+		if(this.r.m == null) {
+			throw haxe_Exception.thrown("No string matched");
+		}
+		return { pos : this.r.m.index, len : this.r.m[0].length};
+	}
+	,matchSub: function(s,pos,len) {
+		if(len == null) {
+			len = -1;
+		}
+		if(this.r.global) {
+			this.r.lastIndex = pos;
+			this.r.m = this.r.exec(len < 0 ? s : HxOverrides.substr(s,0,pos + len));
+			var b = this.r.m != null;
+			if(b) {
+				this.r.s = s;
+			}
+			return b;
+		} else {
+			var b = this.match(len < 0 ? HxOverrides.substr(s,pos,null) : HxOverrides.substr(s,pos,len));
+			if(b) {
+				this.r.s = s;
+				this.r.m.index += pos;
+			}
+			return b;
+		}
+	}
+	,split: function(s) {
+		var d = "#__delim__#";
+		return s.replace(this.r,d).split(d);
+	}
+	,map: function(s,f) {
+		var offset = 0;
+		var buf_b = "";
+		do {
+			if(offset >= s.length) {
+				break;
+			} else if(!this.matchSub(s,offset)) {
+				buf_b += Std.string(HxOverrides.substr(s,offset,null));
+				break;
+			}
+			var p = this.matchedPos();
+			buf_b += Std.string(HxOverrides.substr(s,offset,p.pos - offset));
+			buf_b += Std.string(f(this));
+			if(p.len == 0) {
+				buf_b += Std.string(HxOverrides.substr(s,p.pos,1));
+				offset = p.pos + 1;
+			} else {
+				offset = p.pos + p.len;
+			}
+		} while(this.r.global);
+		if(!this.r.global && offset > 0 && offset < s.length) {
+			buf_b += Std.string(HxOverrides.substr(s,offset,null));
+		}
+		return buf_b;
+	}
+	,__class__: EReg
+};
+var flixel_group_FlxTypedGroup = function(MaxSize) {
+	if(MaxSize == null) {
+		MaxSize = 0;
+	}
+	this._marker = 0;
+	this.length = 0;
+	flixel_FlxBasic.call(this);
+	this.members = [];
+	this.set_maxSize(Math.abs(MaxSize) | 0);
+	this.flixelType = 2;
+};
+$hxClasses["flixel.group.FlxTypedGroup"] = flixel_group_FlxTypedGroup;
+flixel_group_FlxTypedGroup.__name__ = "flixel.group.FlxTypedGroup";
+flixel_group_FlxTypedGroup.resolveGroup = function(basic) {
+	if(basic != null) {
+		if(basic.flixelType == 2) {
+			return basic;
+		} else if(basic.flixelType == 4) {
+			return basic.group;
+		}
+	}
+	return null;
+};
+flixel_group_FlxTypedGroup.resolveSelectionGroup = function(basic) {
+	return flixel_group_FlxTypedGroup.resolveGroup(basic);
+};
+flixel_group_FlxTypedGroup.__super__ = flixel_FlxBasic;
+flixel_group_FlxTypedGroup.prototype = $extend(flixel_FlxBasic.prototype,{
+	members: null
+	,maxSize: null
+	,length: null
+	,_memberAdded: null
+	,_memberRemoved: null
+	,_marker: null
+	,destroy: function() {
+		flixel_FlxBasic.prototype.destroy.call(this);
+		flixel_util_FlxDestroyUtil.destroy(this._memberAdded);
+		flixel_util_FlxDestroyUtil.destroy(this._memberRemoved);
+		if(this.members != null) {
+			var count = this.length;
+			while(count-- > 0) {
+				var basic = this.members.shift();
+				if(basic != null) {
+					basic.destroy();
+				}
+			}
+			this.members = null;
+		}
+	}
+	,update: function(elapsed) {
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && basic.exists && basic.active) {
+				basic.update(elapsed);
+			}
+		}
+	}
+	,draw: function() {
+		var oldDefaultCameras = flixel_FlxCamera._defaultCameras;
+		if(this._cameras != null) {
+			flixel_FlxCamera._defaultCameras = this._cameras;
+		}
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && basic.exists && basic.visible) {
+				basic.draw();
+			}
+		}
+		flixel_FlxCamera._defaultCameras = oldDefaultCameras;
+	}
+	,add: function(basic) {
+		if(basic == null) {
+			flixel_FlxG.log.advanced("Cannot add a `null` object to a FlxGroup.",flixel_system_debug_log_LogStyle.WARNING,true);
+			return null;
+		}
+		if(this.members.indexOf(basic) >= 0) {
+			return basic;
+		}
+		var index = this.getFirstNull();
+		if(index != -1) {
+			this.members[index] = basic;
+			if(index >= this.length) {
+				this.length = index + 1;
+			}
+			this.onMemberAdd(basic);
+			return basic;
+		}
+		if(this.maxSize > 0 && this.length >= this.maxSize) {
+			return basic;
+		}
+		this.members.push(basic);
+		this.length++;
+		this.onMemberAdd(basic);
+		return basic;
+	}
+	,insert: function(position,object) {
+		if(object == null) {
+			flixel_FlxG.log.advanced("Cannot insert a `null` object into a FlxGroup.",flixel_system_debug_log_LogStyle.WARNING,true);
+			return null;
+		}
+		if(this.members.indexOf(object) >= 0) {
+			return object;
+		}
+		if(position < this.length && this.members[position] == null) {
+			this.members[position] = object;
+			this.onMemberAdd(object);
+			return object;
+		}
+		if(this.maxSize > 0 && this.length >= this.maxSize) {
+			return object;
+		}
+		this.members.splice(position,0,object);
+		this.length++;
+		this.onMemberAdd(object);
+		return object;
+	}
+	,recycle: function(objectClass,objectFactory,force,revive) {
+		if(revive == null) {
+			revive = true;
+		}
+		if(force == null) {
+			force = false;
+		}
+		var _gthis = this;
+		if(this.maxSize > 0) {
+			if(this.length < this.maxSize) {
+				return objectFactory != null ? _gthis.add(objectFactory()) : objectClass != null ? _gthis.add(Type.createInstance(objectClass,[])) : null;
+			}
+			var basic = this.members[this._marker++];
+			if(this._marker >= this.maxSize) {
+				this._marker = 0;
+			}
+			if(revive) {
+				basic.revive();
+			}
+			return basic;
+		}
+		var basic = this.getFirstAvailable(objectClass,force);
+		if(basic != null) {
+			if(revive) {
+				basic.revive();
+			}
+			return basic;
+		}
+		return objectFactory != null ? _gthis.add(objectFactory()) : objectClass != null ? _gthis.add(Type.createInstance(objectClass,[])) : null;
+	}
+	,remove: function(basic,splice) {
+		if(splice == null) {
+			splice = false;
+		}
+		if(this.members == null) {
+			return null;
+		}
+		var index = this.members.indexOf(basic);
+		if(index < 0) {
+			return null;
+		}
+		if(splice) {
+			this.members.splice(index,1);
+			this.length--;
+		} else {
+			this.members[index] = null;
+		}
+		this.onMemberRemove(basic);
+		return basic;
+	}
+	,replace: function(oldObject,newObject) {
+		var index = this.members.indexOf(oldObject);
+		if(index < 0) {
+			return null;
+		}
+		this.members[index] = newObject;
+		this.onMemberRemove(oldObject);
+		this.onMemberAdd(newObject);
+		return newObject;
+	}
+	,sort: function(func,order) {
+		if(order == null) {
+			order = -1;
+		}
+		var _g = func;
+		var a1 = order;
+		var tmp = function(a2,a3) {
+			return _g(a1,a2,a3);
+		};
+		this.members.sort(tmp);
+	}
+	,getFirst: function(func) {
+		var result = null;
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && func(basic)) {
+				result = basic;
+				break;
+			}
+		}
+		return result;
+	}
+	,getFirstHelper: function(func) {
+		var result = null;
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && func(basic)) {
+				result = basic;
+				break;
+			}
+		}
+		return result;
+	}
+	,getLast: function(func) {
+		var result = null;
+		var i = this.members.length;
+		while(i-- > 0) {
+			var basic = this.members[i];
+			if(basic != null && func(basic)) {
+				result = basic;
+				break;
+			}
+		}
+		return result;
+	}
+	,getFirstIndex: function(func) {
+		var result = -1;
+		var _g_current = 0;
+		var _g_array = this.members;
+		while(_g_current < _g_array.length) {
+			var _g_value = _g_array[_g_current];
+			var _g_key = _g_current++;
+			var i = _g_key;
+			var basic = _g_value;
+			if(basic != null && func(basic)) {
+				result = i;
+				break;
+			}
+		}
+		return result;
+	}
+	,getLastIndex: function(func) {
+		var result = -1;
+		var i = this.members.length;
+		while(i-- > 0) {
+			var basic = this.members[i];
+			if(basic != null && func(basic)) {
+				result = i;
+				break;
+			}
+		}
+		return result;
+	}
+	,any: function(func) {
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && func(basic)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	,every: function(func) {
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && !func(basic)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	,getFirstAvailable: function(objectClass,force) {
+		if(force == null) {
+			force = false;
+		}
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && !basic.exists && (objectClass == null || js_Boot.__instanceof(basic,objectClass))) {
+				var tmp;
+				if(force) {
+					var c = js_Boot.getClass(basic);
+					tmp = c.__name__ != objectClass.__name__;
+				} else {
+					tmp = false;
+				}
+				if(tmp) {
+					continue;
+				}
+				return basic;
+			}
+		}
+		return null;
+	}
+	,getFirstNull: function() {
+		return this.members.indexOf(null);
+	}
+	,getFirstExisting: function() {
+		var result = null;
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && basic.exists) {
+				result = basic;
+				break;
+			}
+		}
+		return result;
+	}
+	,getFirstAlive: function() {
+		var result = null;
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && (basic.exists && basic.alive)) {
+				result = basic;
+				break;
+			}
+		}
+		return result;
+	}
+	,getFirstDead: function() {
+		var result = null;
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && !basic.alive) {
+				result = basic;
+				break;
+			}
+		}
+		return result;
+	}
+	,countLiving: function() {
+		var count = -1;
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null) {
+				if(count < 0) {
+					count = 0;
+				}
+				if(basic.exists && basic.alive) {
+					++count;
+				}
+			}
+		}
+		return count;
+	}
+	,countDead: function() {
+		var count = -1;
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null) {
+				if(count < 0) {
+					count = 0;
+				}
+				if(!basic.alive) {
+					++count;
+				}
+			}
+		}
+		return count;
+	}
+	,getRandom: function(startIndex,length) {
+		if(length == null) {
+			length = 0;
+		}
+		if(startIndex == null) {
+			startIndex = 0;
+		}
+		if(startIndex < 0) {
+			startIndex = 0;
+		}
+		if(length <= 0) {
+			length = this.length;
+		}
+		return flixel_FlxG.random.getObject_flixel_group_FlxTypedGroup_T(this.members,null,startIndex,length);
+	}
+	,clear: function() {
+		this.length = 0;
+		if(this._memberRemoved != null) {
+			var _g = 0;
+			var _g1 = this.members;
+			while(_g < _g1.length) {
+				var member = _g1[_g];
+				++_g;
+				this.onMemberRemove(member);
+			}
+		}
+		flixel_util_FlxArrayUtil.clearArray(this.members);
+	}
+	,killMembers: function() {
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && basic.exists) {
+				basic.kill();
+			}
+		}
+	}
+	,kill: function() {
+		this.killMembers();
+		flixel_FlxBasic.prototype.kill.call(this);
+	}
+	,reviveMembers: function() {
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && !basic.exists) {
+				basic.revive();
+			}
+		}
+	}
+	,revive: function() {
+		this.reviveMembers();
+		flixel_FlxBasic.prototype.revive.call(this);
+	}
+	,iterator: function(filter) {
+		return new flixel_group_FlxTypedGroupIterator(this.members,filter);
+	}
+	,keyValueIterator: function() {
+		return new haxe_iterators_ArrayKeyValueIterator(this.members);
+	}
+	,forEach: function(func,recurse) {
+		if(recurse == null) {
+			recurse = false;
+		}
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null) {
+				if(recurse) {
+					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
+					if(group != null) {
+						group.forEach(func,recurse);
+					}
+				}
+				func(basic);
+			}
+		}
+	}
+	,forEachAlive: function(func,recurse) {
+		if(recurse == null) {
+			recurse = false;
+		}
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && basic.exists && basic.alive) {
+				if(recurse) {
+					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
+					if(group != null) {
+						group.forEachAlive(func,recurse);
+					}
+				}
+				func(basic);
+			}
+		}
+	}
+	,forEachDead: function(func,recurse) {
+		if(recurse == null) {
+			recurse = false;
+		}
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && !basic.alive) {
+				if(recurse) {
+					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
+					if(group != null) {
+						group.forEachDead(func,recurse);
+					}
+				}
+				func(basic);
+			}
+		}
+	}
+	,forEachExists: function(func,recurse) {
+		if(recurse == null) {
+			recurse = false;
+		}
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null && basic.exists) {
+				if(recurse) {
+					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
+					if(group != null) {
+						group.forEachExists(func,recurse);
+					}
+				}
+				func(basic);
+			}
+		}
+	}
+	,forEachOfType: function(objectClass,func,recurse) {
+		if(recurse == null) {
+			recurse = false;
+		}
+		var _g = 0;
+		var _g1 = this.members;
+		while(_g < _g1.length) {
+			var basic = _g1[_g];
+			++_g;
+			if(basic != null) {
+				if(recurse) {
+					var group = flixel_group_FlxTypedGroup.resolveGroup(basic);
+					if(group != null) {
+						group.forEachOfType(objectClass,func,recurse);
+					}
+				}
+				if(js_Boot.__instanceof(basic,objectClass)) {
+					func(basic);
+				}
+			}
+		}
+	}
+	,set_maxSize: function(size) {
+		this.maxSize = Math.abs(size) | 0;
+		if(this._marker >= this.maxSize) {
+			this._marker = 0;
+		}
+		if(this.maxSize == 0 || this.members == null || this.maxSize >= this.length) {
+			return this.maxSize;
+		}
+		while(this.length > this.maxSize) {
+			var basic = this.members.splice(this.maxSize - 1,1)[0];
+			if(basic != null) {
+				this.onMemberRemove(basic);
+				basic.destroy();
+			}
+			this.length--;
+		}
+		return this.maxSize;
+	}
+	,onMemberAdd: function(member) {
+		if(this._memberAdded != null) {
+			this._memberAdded.dispatch(member);
+		}
+	}
+	,onMemberRemove: function(member) {
+		if(this._memberRemoved != null) {
+			this._memberRemoved.dispatch(member);
+		}
+	}
+	,get_memberAdded: function() {
+		if(this._memberAdded == null) {
+			this._memberAdded = new flixel_util__$FlxSignal_FlxSignal1();
+		}
+		return this._memberAdded;
+	}
+	,get_memberRemoved: function() {
+		if(this._memberRemoved == null) {
+			this._memberRemoved = new flixel_util__$FlxSignal_FlxSignal1();
+		}
+		return this._memberRemoved;
+	}
+	,__class__: flixel_group_FlxTypedGroup
+	,__properties__: $extend(flixel_FlxBasic.prototype.__properties__,{get_memberRemoved:"get_memberRemoved",get_memberAdded:"get_memberAdded",set_maxSize:"set_maxSize"})
+});
+var flixel_group_FlxTypedContainer = function(maxSize) {
+	if(maxSize == null) {
+		maxSize = 0;
+	}
+	flixel_group_FlxTypedGroup.call(this,maxSize);
+};
+$hxClasses["flixel.group.FlxTypedContainer"] = flixel_group_FlxTypedContainer;
+flixel_group_FlxTypedContainer.__name__ = "flixel.group.FlxTypedContainer";
+flixel_group_FlxTypedContainer.__super__ = flixel_group_FlxTypedGroup;
+flixel_group_FlxTypedContainer.prototype = $extend(flixel_group_FlxTypedGroup.prototype,{
+	onMemberAdd: function(member) {
+		if(member.get_container() != null) {
+			member.get_container().remove(member);
+		}
+		member.container = this;
+		flixel_group_FlxTypedGroup.prototype.onMemberAdd.call(this,member);
+	}
+	,onMemberRemove: function(member) {
+		member.container = null;
+		flixel_group_FlxTypedGroup.prototype.onMemberRemove.call(this,member);
+	}
+	,__class__: flixel_group_FlxTypedContainer
+});
+var flixel_FlxState = function() {
+	this._requestSubStateReset = false;
+	this.destroySubStates = true;
+	this.persistentDraw = true;
+	this.persistentUpdate = false;
+	flixel_group_FlxTypedContainer.call(this,0);
+};
+$hxClasses["flixel.FlxState"] = flixel_FlxState;
+flixel_FlxState.__name__ = "flixel.FlxState";
+flixel_FlxState.__super__ = flixel_group_FlxTypedContainer;
+flixel_FlxState.prototype = $extend(flixel_group_FlxTypedContainer.prototype,{
+	persistentUpdate: null
+	,persistentDraw: null
+	,destroySubStates: null
+	,_constructor: null
+	,subState: null
+	,_requestedSubState: null
+	,_requestSubStateReset: null
+	,_subStateOpened: null
+	,_subStateClosed: null
+	,create: function() {
+	}
+	,draw: function() {
+		if(this.persistentDraw || this.subState == null) {
+			flixel_group_FlxTypedContainer.prototype.draw.call(this);
+		}
+		if(this.subState != null) {
+			this.subState.draw();
+		}
+	}
+	,openSubState: function(SubState) {
+		this._requestSubStateReset = true;
+		this._requestedSubState = SubState;
+	}
+	,closeSubState: function() {
+		this._requestSubStateReset = true;
+	}
+	,resetSubState: function() {
+		if(this.subState != null) {
+			if(this.subState.closeCallback != null) {
+				this.subState.closeCallback();
+			}
+			if(this._subStateClosed != null) {
+				this._subStateClosed.dispatch(this.subState);
+			}
+			if(this.destroySubStates) {
+				this.subState.destroy();
+			}
+		}
+		this.subState = this._requestedSubState;
+		this._requestedSubState = null;
+		if(this.subState != null) {
+			if(!this.persistentUpdate) {
+				flixel_FlxG.inputs.onStateSwitch();
+			}
+			this.subState._parentState = this;
+			if(!this.subState._created) {
+				this.subState._created = true;
+				this.subState.create();
+			}
+			if(this.subState.openCallback != null) {
+				this.subState.openCallback();
+			}
+			if(this._subStateOpened != null) {
+				this._subStateOpened.dispatch(this.subState);
+			}
+		}
+	}
+	,destroy: function() {
+		this._constructor = flixel_util_typeLimit_NextState.fromMaker(function() {
+			throw haxe_Exception.thrown("Attempting to resetState while the current state is destroyed");
+		});
+		flixel_util_FlxDestroyUtil.destroy(this._subStateOpened);
+		flixel_util_FlxDestroyUtil.destroy(this._subStateClosed);
+		if(this.subState != null) {
+			this.subState.destroy();
+			this.subState = null;
+		}
+		flixel_group_FlxTypedContainer.prototype.destroy.call(this);
+	}
+	,switchTo: function(nextState) {
+		return true;
+	}
+	,startOutro: function(onOutroComplete) {
+		onOutroComplete();
+	}
+	,onFocusLost: function() {
+	}
+	,onFocus: function() {
+	}
+	,onResize: function(Width,Height) {
+	}
+	,tryUpdate: function(elapsed) {
+		if(this.persistentUpdate || this.subState == null) {
+			this.update(elapsed);
+		}
+		if(this._requestSubStateReset) {
+			this._requestSubStateReset = false;
+			this.resetSubState();
+		}
+		if(this.subState != null) {
+			this.subState.tryUpdate(elapsed);
+		}
+	}
+	,get_bgColor: function() {
+		return flixel_FlxG.cameras.get_bgColor();
+	}
+	,set_bgColor: function(Value) {
+		return flixel_FlxG.cameras.set_bgColor(Value);
+	}
+	,get_subStateOpened: function() {
+		if(this._subStateOpened == null) {
+			this._subStateOpened = new flixel_util__$FlxSignal_FlxSignal1();
+		}
+		return this._subStateOpened;
+	}
+	,get_subStateClosed: function() {
+		if(this._subStateClosed == null) {
+			this._subStateClosed = new flixel_util__$FlxSignal_FlxSignal1();
+		}
+		return this._subStateClosed;
+	}
+	,__class__: flixel_FlxState
+	,__properties__: $extend(flixel_group_FlxTypedContainer.prototype.__properties__,{get_subStateClosed:"get_subStateClosed",get_subStateOpened:"get_subStateOpened",set_bgColor:"set_bgColor",get_bgColor:"get_bgColor"})
+});
+var EndState = function(finalScore) {
+	flixel_FlxState.call(this);
+	this.finalScore = finalScore;
+};
+$hxClasses["EndState"] = EndState;
+EndState.__name__ = "EndState";
+EndState.__super__ = flixel_FlxState;
+EndState.prototype = $extend(flixel_FlxState.prototype,{
+	score: null
+	,restart: null
+	,finalScore: null
+	,tiles: null
+	,create: function() {
+		flixel_FlxState.prototype.create.call(this);
+		this.finalScore = 2;
+		this.tiles = [];
+		var _g = 0;
+		while(_g < 150) {
+			var i = _g++;
+			this.tiles.push(new Tile(i,1));
+			this.add(this.tiles[i]);
+		}
+		this.score = new flixel_text_FlxText(85.,220.,200,"Final result: " + this.finalScore,20);
+		this.add(this.score);
+		this.restart = new flixel_text_FlxText(100.,460,200,"tap to restart",15);
+		this.add(this.restart);
+	}
+	,update: function(elapsed) {
+		flixel_FlxState.prototype.update.call(this,elapsed);
+		if(flixel_FlxG.mouse._leftButton.current == 2) {
+			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
+				var nextState = flixel_util_typeLimit_NextState.fromState(new MenuState());
+				var stateOnCall = flixel_FlxG.game._state;
+				if(!((nextState) instanceof flixel_FlxState) || flixel_FlxG.canSwitchTo(nextState)) {
+					flixel_FlxG.game._state.startOutro(function() {
+						if(flixel_FlxG.game._state == stateOnCall) {
+							flixel_FlxG.game._nextState = nextState;
+						} else {
+							flixel_FlxG.log.advanced("`onOutroComplete` was called after the state was switched. This will be ignored",flixel_system_debug_log_LogStyle.WARNING,true);
+						}
+					});
+				}
+			});
+		}
+	}
+	,__class__: EndState
+});
+var HxOverrides = function() { };
+$hxClasses["HxOverrides"] = HxOverrides;
+HxOverrides.__name__ = "HxOverrides";
+HxOverrides.strDate = function(s) {
+	switch(s.length) {
+	case 8:
+		var k = s.split(":");
+		var d = new Date();
+		d["setTime"](0);
+		d["setUTCHours"](k[0]);
+		d["setUTCMinutes"](k[1]);
+		d["setUTCSeconds"](k[2]);
+		return d;
+	case 10:
+		var k = s.split("-");
+		return new Date(k[0],k[1] - 1,k[2],0,0,0);
+	case 19:
+		var k = s.split(" ");
+		var y = k[0].split("-");
+		var t = k[1].split(":");
+		return new Date(y[0],y[1] - 1,y[2],t[0],t[1],t[2]);
+	default:
+		throw haxe_Exception.thrown("Invalid date format : " + s);
+	}
+};
+HxOverrides.cca = function(s,index) {
+	var x = s.charCodeAt(index);
+	if(x != x) {
+		return undefined;
+	}
+	return x;
+};
+HxOverrides.substr = function(s,pos,len) {
+	if(len == null) {
+		len = s.length;
+	} else if(len < 0) {
+		if(pos == 0) {
+			len = s.length + len;
+		} else {
+			return "";
+		}
+	}
+	return s.substr(pos,len);
+};
+HxOverrides.remove = function(a,obj) {
+	var i = a.indexOf(obj);
+	if(i == -1) {
+		return false;
+	}
+	a.splice(i,1);
+	return true;
+};
+HxOverrides.now = function() {
+	return Date.now();
+};
+var IntIterator = function(min,max) {
+	this.min = min;
+	this.max = max;
+};
+$hxClasses["IntIterator"] = IntIterator;
+IntIterator.__name__ = "IntIterator";
+IntIterator.prototype = {
+	min: null
+	,max: null
+	,hasNext: function() {
+		return this.min < this.max;
+	}
+	,next: function() {
+		return this.min++;
+	}
+	,__class__: IntIterator
+};
+var Lambda = function() { };
+$hxClasses["Lambda"] = Lambda;
+Lambda.__name__ = "Lambda";
+Lambda.array = function(it) {
+	var a = [];
+	var i = $getIterator(it);
+	while(i.hasNext()) {
+		var i1 = i.next();
+		a.push(i1);
+	}
+	return a;
+};
+var ManifestResources = function() { };
+$hxClasses["ManifestResources"] = ManifestResources;
+ManifestResources.__name__ = "ManifestResources";
+ManifestResources.preloadLibraries = null;
+ManifestResources.preloadLibraryNames = null;
+ManifestResources.rootPath = null;
+ManifestResources.init = function(config) {
+	ManifestResources.preloadLibraries = [];
+	ManifestResources.preloadLibraryNames = [];
+	ManifestResources.rootPath = null;
+	if(config != null && Object.prototype.hasOwnProperty.call(config,"rootPath")) {
+		ManifestResources.rootPath = Reflect.field(config,"rootPath");
+		if(!StringTools.endsWith(ManifestResources.rootPath,"/")) {
+			ManifestResources.rootPath += "/";
+		}
+	}
+	if(ManifestResources.rootPath == null) {
+		ManifestResources.rootPath = "./";
+	}
+	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
+	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
+	var bundle;
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy34:assets%2Fdata%2Fdata-goes-here.txty4:sizezy4:typey4:TEXTy2:idR1y7:preloadtgoR0y26:assets%2Fimages%2Fcroc.pngR2i1995R3y5:IMAGER5R7R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R9R6tgoR0y30:assets%2Fimages%2Fobstacle.pngR2i1174R3R8R5R10R6tgoR0y34:assets%2Fimages%2Fsurroundings.pngR2i3554R3R8R5R11R6tgoR0y29:assets%2Fimages%2Ftornado.pngR2i2385R3R8R5R12R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R13R6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R14R6tgoR2i8220R3y5:MUSICR5y26:flixel%2Fsounds%2Fbeep.mp3y9:pathGroupaR16y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R15R5y28:flixel%2Fsounds%2Fflixel.mp3R17aR19y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i6840R3y5:SOUNDR5R18R17aR16R18hgoR2i33629R3R21R5R20R17aR19R20hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R22R23y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i277R3R8R5R28R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i505R3R8R5R29R6tgoR0y42:flixel%2Fimages%2Ftransitions%2Fcircle.pngR2i824R3R8R5R30R6tgoR0y53:flixel%2Fimages%2Ftransitions%2Fdiagonal_gradient.pngR2i3812R3R8R5R31R6tgoR0y43:flixel%2Fimages%2Ftransitions%2Fdiamond.pngR2i788R3R8R5R32R6tgoR0y42:flixel%2Fimages%2Ftransitions%2Fsquare.pngR2i383R3R8R5R33R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
+	var library = lime_utils_AssetLibrary.fromManifest(manifest);
+	lime_utils_Assets.registerLibrary("default",library);
+	library = lime_utils_Assets.getLibrary("default");
+	if(library != null) {
+		ManifestResources.preloadLibraries.push(library);
+	} else {
+		ManifestResources.preloadLibraryNames.push("default");
+	}
+};
+var lime_text_Font = function(name) {
+	if(name != null) {
+		this.name = name;
+	}
+	if(!this.__init) {
+		if(this.ascender == undefined) {
+			this.ascender = 0;
+		}
+		if(this.descender == undefined) {
+			this.descender = 0;
+		}
+		if(this.height == undefined) {
+			this.height = 0;
+		}
+		if(this.numGlyphs == undefined) {
+			this.numGlyphs = 0;
+		}
+		if(this.underlinePosition == undefined) {
+			this.underlinePosition = 0;
+		}
+		if(this.underlineThickness == undefined) {
+			this.underlineThickness = 0;
+		}
+		if(this.unitsPerEM == undefined) {
+			this.unitsPerEM = 0;
+		}
+		if(this.__fontID != null) {
+			if(lime_utils_Assets.isLocal(this.__fontID)) {
+				this.__fromBytes(lime_utils_Assets.getBytes(this.__fontID));
+			}
+		} else if(this.__fontPath != null) {
+			this.__fromFile(this.__fontPath);
+		}
+	}
+};
+$hxClasses["lime.text.Font"] = lime_text_Font;
+lime_text_Font.__name__ = "lime.text.Font";
+lime_text_Font.fromBytes = function(bytes) {
+	if(bytes == null) {
+		return null;
+	}
+	var font = new lime_text_Font();
+	font.__fromBytes(bytes);
+	return font;
+};
+lime_text_Font.fromFile = function(path) {
+	if(path == null) {
+		return null;
+	}
+	var font = new lime_text_Font();
+	font.__fromFile(path);
+	return font;
+};
+lime_text_Font.loadFromBytes = function(bytes) {
+	return lime_app_Future.withValue(lime_text_Font.fromBytes(bytes));
+};
+lime_text_Font.loadFromFile = function(path) {
+	var request = new lime_net__$HTTPRequest_$lime_$text_$Font();
+	return request.load(path).then(function(font) {
+		if(font != null) {
+			return lime_app_Future.withValue(font);
+		} else {
+			return lime_app_Future.withError("");
+		}
+	});
+};
+lime_text_Font.loadFromName = function(path) {
+	var font = new lime_text_Font();
+	return font.__loadFromName(path);
+};
+lime_text_Font.__measureFontNode = function(fontFamily) {
+	var node = window.document.createElement("span");
+	node.setAttribute("aria-hidden","true");
+	var text = window.document.createTextNode("BESbswy");
+	node.appendChild(text);
+	var style = node.style;
+	style.display = "block";
+	style.position = "absolute";
+	style.top = "-9999px";
+	style.left = "-9999px";
+	style.fontSize = "300px";
+	style.width = "auto";
+	style.height = "auto";
+	style.lineHeight = "normal";
+	style.margin = "0";
+	style.padding = "0";
+	style.fontVariant = "normal";
+	style.whiteSpace = "nowrap";
+	style.fontFamily = fontFamily;
+	window.document.body.appendChild(node);
+	return node;
+};
+lime_text_Font.prototype = {
+	ascender: null
+	,descender: null
+	,height: null
+	,name: null
+	,numGlyphs: null
+	,src: null
+	,underlinePosition: null
+	,underlineThickness: null
+	,unitsPerEM: null
+	,__fontID: null
+	,__fontPath: null
+	,__init: null
+	,decompose: function() {
+		return null;
+	}
+	,getGlyph: function(character) {
+		return -1;
+	}
+	,getGlyphs: function(characters) {
+		if(characters == null) {
+			characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ";
+		}
+		return null;
+	}
+	,getGlyphMetrics: function(glyph) {
+		return null;
+	}
+	,renderGlyph: function(glyph,fontSize) {
+		return null;
+	}
+	,renderGlyphs: function(glyphs,fontSize) {
+		return null;
+	}
+	,__copyFrom: function(other) {
+		if(other != null) {
+			this.ascender = other.ascender;
+			this.descender = other.descender;
+			this.height = other.height;
+			this.name = other.name;
+			this.numGlyphs = other.numGlyphs;
+			this.src = other.src;
+			this.underlinePosition = other.underlinePosition;
+			this.underlineThickness = other.underlineThickness;
+			this.unitsPerEM = other.unitsPerEM;
+			this.__fontID = other.__fontID;
+			this.__fontPath = other.__fontPath;
+			this.__init = true;
+		}
+	}
+	,__fromBytes: function(bytes) {
+		this.__fontPath = null;
+	}
+	,__fromFile: function(path) {
+		this.__fontPath = path;
+	}
+	,__initializeSource: function() {
+		this.__init = true;
+	}
+	,__loadFromName: function(name) {
+		var _gthis = this;
+		var promise = new lime_app_Promise();
+		this.name = name;
+		var userAgent = $global.navigator.userAgent.toLowerCase();
+		var isSafari = userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0;
+		var isUIWebView = new EReg("(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)","i").match(userAgent);
+		if(!isSafari && !isUIWebView && (window.document.fonts && ($_=window.document.fonts,$bind($_,$_.load)))) {
+			window.document.fonts.load("1em '" + name + "'").then(function(_) {
+				promise.complete(_gthis);
+			},function(_) {
+				lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 515, className : "lime.text.Font", methodName : "__loadFromName"});
+				promise.complete(_gthis);
+			});
+		} else {
+			var node1 = lime_text_Font.__measureFontNode("'" + name + "', sans-serif");
+			var node2 = lime_text_Font.__measureFontNode("'" + name + "', serif");
+			var width1 = node1.offsetWidth;
+			var width2 = node2.offsetWidth;
+			var interval = -1;
+			var timeout = 3000;
+			var intervalLength = 50;
+			var intervalCount = 0;
+			var loaded;
+			var timeExpired;
+			var checkFont = function() {
+				intervalCount += 1;
+				loaded = node1.offsetWidth != width1 || node2.offsetWidth != width2;
+				timeExpired = intervalCount * intervalLength >= timeout;
+				if(loaded || timeExpired) {
+					window.clearInterval(interval);
+					node1.parentNode.removeChild(node1);
+					node2.parentNode.removeChild(node2);
+					node1 = null;
+					node2 = null;
+					if(timeExpired) {
+						lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 550, className : "lime.text.Font", methodName : "__loadFromName"});
+					}
+					promise.complete(_gthis);
+				}
+			};
+			interval = window.setInterval(checkFont,intervalLength);
+		}
+		return promise.future;
+	}
+	,__setSize: function(size) {
+	}
+	,__class__: lime_text_Font
+};
+var _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf = $hx_exports["__ASSET__flixel_fonts_nokiafc22_ttf"] = function() {
+	this.ascender = 2048;
+	this.descender = -512;
+	this.height = 2816;
+	this.numGlyphs = 172;
+	this.underlinePosition = -640;
+	this.underlineThickness = 256;
+	this.unitsPerEM = 2048;
+	this.name = "Nokia Cellphone FC Small";
+	lime_text_Font.call(this);
+};
+$hxClasses["__ASSET__flixel_fonts_nokiafc22_ttf"] = _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf;
+_$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf.__name__ = "__ASSET__flixel_fonts_nokiafc22_ttf";
+_$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf.__super__ = lime_text_Font;
+_$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf.prototype = $extend(lime_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf
+});
+var _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf = $hx_exports["__ASSET__flixel_fonts_monsterrat_ttf"] = function() {
+	this.ascender = 968;
+	this.descender = -251;
+	this.height = 1219;
+	this.numGlyphs = 263;
+	this.underlinePosition = -150;
+	this.underlineThickness = 50;
+	this.unitsPerEM = 1000;
+	this.name = "Monsterrat";
+	lime_text_Font.call(this);
+};
+$hxClasses["__ASSET__flixel_fonts_monsterrat_ttf"] = _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf;
+_$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf.__name__ = "__ASSET__flixel_fonts_monsterrat_ttf";
+_$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf.__super__ = lime_text_Font;
+_$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf.prototype = $extend(lime_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf
+});
+var openfl_text_Font = function(name) {
+	lime_text_Font.call(this,name);
+};
+$hxClasses["openfl.text.Font"] = openfl_text_Font;
+openfl_text_Font.__name__ = "openfl.text.Font";
+openfl_text_Font.enumerateFonts = function(enumerateDeviceFonts) {
+	if(enumerateDeviceFonts == null) {
+		enumerateDeviceFonts = false;
+	}
+	return openfl_text_Font.__registeredFonts;
+};
+openfl_text_Font.fromBytes = function(bytes) {
+	var font = new openfl_text_Font();
+	font.__fromBytes(openfl_utils_ByteArray.toBytes(bytes));
+	return font;
+};
+openfl_text_Font.fromFile = function(path) {
+	if(path == null) {
+		return null;
+	}
+	var font = new openfl_text_Font();
+	font.__fromFile(path);
+	return font;
+};
+openfl_text_Font.loadFromBytes = function(bytes) {
+	return lime_text_Font.loadFromBytes(openfl_utils_ByteArray.toBytes(bytes)).then(function(limeFont) {
+		var font = new openfl_text_Font();
+		font.__fromLimeFont(limeFont);
+		return lime_app_Future.withValue(font);
+	});
+};
+openfl_text_Font.loadFromFile = function(path) {
+	return lime_text_Font.loadFromFile(path).then(function(limeFont) {
+		var font = new openfl_text_Font();
+		font.__fromLimeFont(limeFont);
+		return lime_app_Future.withValue(font);
+	});
+};
+openfl_text_Font.loadFromName = function(path) {
+	return lime_text_Font.loadFromName(path).then(function(limeFont) {
+		var font = new openfl_text_Font();
+		font.__fromLimeFont(limeFont);
+		return lime_app_Future.withValue(font);
+	});
+};
+openfl_text_Font.registerFont = function(font) {
+	var instance = null;
+	if(js_Boot.getClass(font) == null) {
+		instance = js_Boot.__cast(Type.createInstance(font,[]) , openfl_text_Font);
+	} else {
+		instance = js_Boot.__cast(font , openfl_text_Font);
+	}
+	if(instance != null) {
+		openfl_text_Font.__registeredFonts.push(instance);
+		openfl_text_Font.__fontByName.h[instance.name] = instance;
+	}
+};
+openfl_text_Font.__super__ = lime_text_Font;
+openfl_text_Font.prototype = $extend(lime_text_Font.prototype,{
+	fontStyle: null
+	,fontType: null
+	,__initialized: null
+	,__fromLimeFont: function(font) {
+		this.__copyFrom(font);
+	}
+	,__initialize: function() {
+		return this.__initialized;
+	}
+	,get_fontName: function() {
+		return this.name;
+	}
+	,set_fontName: function(value) {
+		return this.name = value;
+	}
+	,__class__: openfl_text_Font
+	,__properties__: {set_fontName:"set_fontName",get_fontName:"get_fontName"}
+});
+var _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf = $hx_exports["__ASSET__OPENFL__flixel_fonts_nokiafc22_ttf"] = function() {
+	this.__fromLimeFont(new _$_$ASSET_$_$flixel_$fonts_$nokiafc22_$ttf());
+	openfl_text_Font.call(this);
+};
+$hxClasses["__ASSET__OPENFL__flixel_fonts_nokiafc22_ttf"] = _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf;
+_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf.__name__ = "__ASSET__OPENFL__flixel_fonts_nokiafc22_ttf";
+_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf.__super__ = openfl_text_Font;
+_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf.prototype = $extend(openfl_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf
+});
+var _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf = $hx_exports["__ASSET__OPENFL__flixel_fonts_monsterrat_ttf"] = function() {
+	this.__fromLimeFont(new _$_$ASSET_$_$flixel_$fonts_$monsterrat_$ttf());
+	openfl_text_Font.call(this);
+};
+$hxClasses["__ASSET__OPENFL__flixel_fonts_monsterrat_ttf"] = _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf;
+_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf.__name__ = "__ASSET__OPENFL__flixel_fonts_monsterrat_ttf";
+_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf.__super__ = openfl_text_Font;
+_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf.prototype = $extend(openfl_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf
+});
+Math.__name__ = "Math";
+var MenuState = function() {
+	this.blinkTime = 0;
+	flixel_FlxState.call(this);
+};
+$hxClasses["MenuState"] = MenuState;
+MenuState.__name__ = "MenuState";
+MenuState.__super__ = flixel_FlxState;
+MenuState.prototype = $extend(flixel_FlxState.prototype,{
+	title: null
+	,blinkTime: null
+	,tiles: null
+	,create: function() {
+		flixel_FlxState.prototype.create.call(this);
+		this.tiles = [];
+		var _g = 0;
+		while(_g < 150) {
+			var i = _g++;
+			this.tiles.push(new Tile(i,1));
+			this.add(this.tiles[i]);
+		}
+		var buttonPlay = new flixel_addons_ui_FlxButtonPlus(0,0,function() {
+			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
+				var nextState = flixel_util_typeLimit_NextState.fromState(new PlayState());
+				var stateOnCall = flixel_FlxG.game._state;
+				if(!((nextState) instanceof flixel_FlxState) || flixel_FlxG.canSwitchTo(nextState)) {
+					flixel_FlxG.game._state.startOutro(function() {
+						if(flixel_FlxG.game._state == stateOnCall) {
+							flixel_FlxG.game._nextState = nextState;
+						} else {
+							flixel_FlxG.log.advanced("`onOutroComplete` was called after the state was switched. This will be ignored",flixel_system_debug_log_LogStyle.WARNING,true);
+						}
+					});
+				}
+			});
+		},"PLAY",176,32);
+		buttonPlay.set_x(flixel_FlxG.width / 2 - buttonPlay.get_width() / 2);
+		buttonPlay.set_y(flixel_FlxG.height / 2 - buttonPlay.get_height() / 2 + 30);
+		buttonPlay.textNormal.set_y(buttonPlay.y + 10);
+		buttonPlay.textHighlight.set_y(buttonPlay.y + 10);
+		this.add(buttonPlay);
+	}
+	,update: function(elapsed) {
+		flixel_FlxState.prototype.update.call(this,elapsed);
+	}
+	,__class__: MenuState
+});
+var Obstacle = function(relX,relY,reversed) {
+	flixel_FlxSprite.call(this,relX * 32,relY * 32);
+	this.loadGraphic("assets/images/obstacle.png",false,96,64);
+	this.set_x(relX * 32);
+	this.set_y(relY * 32);
+	this.scale.set_x(0.75);
+	this.bw = this.get_width() * 0.75;
+	this.bh = this.get_height();
+	this.X = this.x + 8;
+	this.Y = this.y;
+	if(reversed) {
+		this.set_angle(90);
+		this.set_y(this.y - this.get_width() / 2);
+		this.set_x(this.x + this.get_width() / 2);
+		this.bh = this.bw;
+		this.bw = this.get_height();
+		this.X = this.x - this.get_width() / 2;
+		this.Y = this.y + this.get_width() / 2 + 8;
+	}
+};
+$hxClasses["Obstacle"] = Obstacle;
+Obstacle.__name__ = "Obstacle";
+Obstacle.__super__ = flixel_FlxSprite;
+Obstacle.prototype = $extend(flixel_FlxSprite.prototype,{
+	X: null
+	,Y: null
+	,bw: null
+	,bh: null
 	,update: function(elapsed) {
 		flixel_FlxSprite.prototype.update.call(this,elapsed);
 	}
-	,__class__: Mole
+	,__class__: Obstacle
 });
 var PlayState = function() {
-	this.y = [100,100,100,100,170,170,170,170,240,240,240,240,310,310,310,310];
-	this.x = [40,100,160,220,40,100,160,220,40,100,160,220,40,100,160,220];
+	this.cy = [7,1,2,4,6,9,13,4];
+	this.cx = [6,4,5,6,6,2,5,3];
+	this.rev = [false,true,false,true,true,false,false];
+	this.y = [0,3,6,9,11,13,14];
+	this.x = [3,2,4,7,0,6,2];
+	this.type = [0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0];
 	this.score = 0;
 	flixel_FlxState.call(this);
 };
@@ -8411,52 +8549,46 @@ $hxClasses["PlayState"] = PlayState;
 PlayState.__name__ = "PlayState";
 PlayState.__super__ = flixel_FlxState;
 PlayState.prototype = $extend(flixel_FlxState.prototype,{
-	background: null
-	,moles: null
-	,score: null
-	,pos: null
-	,col: null
-	,x: null
-	,y: null
+	score: null
 	,score_disp: null
 	,timer: null
-	,score_modifier: null
 	,timer_disp: null
+	,tiles: null
+	,obstacles: null
+	,type: null
+	,x: null
+	,y: null
+	,rev: null
+	,crocs: null
+	,cx: null
+	,cy: null
 	,create: function() {
 		flixel_FlxState.prototype.create.call(this);
-		this.background = new flixel_FlxSprite(0,0);
-		this.background.loadGraphic("assets/images/background.png",true,320,480);
-		this.add(this.background);
-		this.moles = [];
+		this.tiles = [];
 		var _g = 0;
-		while(_g < 16) {
+		while(_g < 150) {
 			var i = _g++;
-			this.col = new flixel_math_FlxRandom();
-			this.moles.push(new Mole(1,this.x[i],this.y[i],this.col.int(0,4)));
-			this.add(this.moles[i]);
+			this.tiles.push(new Tile(i,this.type[i]));
+			this.add(this.tiles[i]);
 		}
-		this.score_disp = new flixel_text_FlxText(10,5,200,"SCORE: " + this.score,20);
-		this.add(this.score_disp);
+		this.obstacles = [];
+		var _g = 0;
+		var _g1 = this.rev.length;
+		while(_g < _g1) {
+			var i = _g++;
+			this.obstacles.push(new Obstacle(this.x[i],this.y[i],this.rev[i]));
+			this.add(this.obstacles[i]);
+		}
+		this.crocs = [];
+		var _g = 0;
+		var _g1 = this.cx.length;
+		while(_g < _g1) {
+			var i = _g++;
+			this.crocs.push(new Croc(this.cx[i],this.cy[i]));
+			this.add(this.crocs[i]);
+		}
 		this.timer = new flixel_util_FlxTimer();
 		this.timer.start(90,$bind(this,this.change),0);
-		this.score_modifier = new flixel_FlxSprite(0,0);
-		this.score_modifier.loadGraphic("assets/images/score.png",true,32,32);
-		var this1 = this.score_modifier.scale;
-		var x = 2;
-		var y = 2;
-		if(y == null) {
-			y = 0;
-		}
-		if(x == null) {
-			x = 0;
-		}
-		this1.set_x(x);
-		this1.set_y(y);
-		this.score_modifier.animation.add("50",[0]);
-		this.score_modifier.animation.add("100",[1]);
-		this.score_modifier.animation.add("300",[2]);
-		this.score_modifier.animation.play("100");
-		this.add(this.score_modifier);
 		var _this = this.timer;
 		this.timer_disp = new flixel_text_FlxText(flixel_FlxG.width - 50,10,200,"" + (_this.time - _this._timeCounter | 0),20);
 		this.add(this.timer_disp);
@@ -8465,52 +8597,24 @@ PlayState.prototype = $extend(flixel_FlxState.prototype,{
 		flixel_FlxState.prototype.update.call(this,elapsed);
 		var _this = this.timer;
 		this.timer_disp.set_text("" + (_this.time - _this._timeCounter | 0));
-		this.score_modifier.set_x(flixel_FlxG.mouse.x);
-		this.score_modifier.set_y(flixel_FlxG.mouse.y - 50);
-		var _this = flixel_FlxG.mouse._leftButton;
-		if(!(_this.current == 1 || _this.current == 2)) {
-			this.score_modifier.set_alpha(0);
-		} else {
-			this.score_modifier.set_alpha(255);
-		}
-		if(this.missed()) {
-			this.score -= 50;
-			if(this.score < 0) {
-				this.score = 0;
-			}
-			this.score_disp.set_text("SCORE: " + this.score);
-			this.score_modifier.animation.play("50");
-		}
 		var _g = 0;
-		while(_g < 16) {
+		var _g1 = this.crocs.length;
+		while(_g < _g1) {
 			var i = _g++;
-			this.pos = new flixel_math_FlxRandom();
-			if(this.pos.int(1,100) < 3) {
-				if(this.moles[i].animation.get_name() == "full_down") {
-					this.moles[i].animation.play("up");
+			var _g2 = 0;
+			var _g3 = this.obstacles.length;
+			while(_g2 < _g3) {
+				var j = _g2++;
+				if(this.collide(this.obstacles[j],this.crocs[i])) {
+					break;
 				}
-			}
-			if(this.moles[i].animation.get_name() == "up" && this.moles[i].animation.get_finished()) {
-				this.moles[i].animation.play("down");
-			}
-			if(this.moles[i].animation.get_name() != "full_down" && flixel_FlxG.mouse._leftButton.current == 2 && flixel_FlxG.mouse.overlaps(this.moles[i]) && !this.moles[i].touched) {
-				this.score += this.moles[i].value;
-				this.score_modifier.animation.play("" + this.moles[i].value);
-				this.score_disp.set_text("SCORE: " + this.score);
-				this.moles[i].animation.play("down");
-				this.moles[i].touched = true;
-			} else if(this.moles[i].animation.get_name() == "down" && this.moles[i].animation.get_finished()) {
-				this.col = new flixel_math_FlxRandom();
-				this.moles[i].destroy();
-				this.moles[i] = new Mole(1,this.x[i],this.y[i],this.col.int(0,4));
-				this.add(this.moles[i]);
 			}
 		}
 	}
 	,change: function(_) {
 		var _gthis = this;
 		flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
-			var nextState = flixel_util_typeLimit_NextState.fromState(new EndState(_gthis.score));
+			var nextState = flixel_util_typeLimit_NextState.fromState(new EndState(_gthis.computeScore()));
 			var stateOnCall = flixel_FlxG.game._state;
 			if(!((nextState) instanceof flixel_FlxState) || flixel_FlxG.canSwitchTo(nextState)) {
 				flixel_FlxG.game._state.startOutro(function() {
@@ -8523,23 +8627,85 @@ PlayState.prototype = $extend(flixel_FlxState.prototype,{
 			}
 		});
 	}
-	,missed: function() {
-		if(flixel_FlxG.mouse._leftButton.current != 2) {
+	,collide: function(obs,cro) {
+		var ox = obs.X;
+		var ow = obs.X + obs.bw;
+		var cx = cro.nx;
+		var cw = cro.X + cro.bw;
+		var oy = obs.Y;
+		var oh = obs.Y + obs.bh;
+		var cy = cro.ny;
+		var ch = cro.Y + cro.bh;
+		cro.left = true;
+		cro.right = true;
+		cro.up = true;
+		cro.down = true;
+		if(obs.Y > cro.ny + cro.bh || cro.ny > obs.Y + obs.bh) {
 			return false;
 		}
-		var _g = 0;
-		var _g1 = this.moles;
-		while(_g < _g1.length) {
-			var mole = _g1[_g];
-			++_g;
-			if(flixel_FlxG.mouse.overlaps(mole)) {
-				if(mole.animation.get_name() == "full_down" || mole.touched) {
-					return true;
-				}
-				return false;
-			}
+		if(obs.X > cro.nx + cro.bw || cro.nx > obs.X + obs.bw) {
+			return false;
+		}
+		if(ox < cx && ow >= cx && ow < cw) {
+			cro.left = false;
+		}
+		if(cx < ox && cw >= ox && cw < ow) {
+			cro.right = false;
+		}
+		if(oy < cy && oh >= cy && oh < ch) {
+			cro.up = false;
+		}
+		if(cy < oy && ch >= oy && ch < oh) {
+			cro.down = false;
 		}
 		return true;
+	}
+	,allowToTurn: function(obs,cro) {
+		if(obs.Y > cro.revY + cro.revbh || cro.revY > obs.Y + obs.bh) {
+			return;
+		}
+		if(obs.X > cro.revX + cro.revbw || cro.revX > obs.X + obs.bw) {
+			return;
+		}
+		if(cro.orientation == 1 || cro.orientation == 2) {
+			if(obs.X + obs.bw >= cro.revX && obs.X < cro.revX) {
+				cro.left = false;
+			}
+			if(obs.X <= cro.revX + cro.revbw && obs.X + obs.bw > cro.revX) {
+				cro.right = false;
+			}
+		} else {
+			if(obs.Y <= cro.revY + cro.revbh && obs.Y + obs.bh > cro.revY) {
+				cro.down = false;
+			}
+			if(obs.Y + obs.bh >= cro.revY && obs.Y < cro.revY) {
+				cro.up = false;
+			}
+		}
+	}
+	,computeScore: function() {
+		var score = 0;
+		var _g = 0;
+		var _g1 = this.crocs.length;
+		while(_g < _g1) {
+			var i = _g++;
+			if(this.contain(this.crocs[i])) {
+				score += 100;
+			}
+		}
+		return score;
+	}
+	,contain: function(c) {
+		if(c.X >= 0 && c.X + c.bw <= 128 && c.Y >= 0 && c.Y + c.bh <= 128) {
+			return true;
+		}
+		if(c.X >= 224 && c.X + c.bw <= 320 && c.Y >= 320 && c.Y + c.bh <= 480) {
+			return true;
+		}
+		if(c.X >= 0 && c.X + c.bw <= 96 && c.Y >= 384 && c.Y + c.bh <= 480) {
+			return true;
+		}
+		return false;
 	}
 	,__class__: PlayState
 });
@@ -8795,6 +8961,28 @@ StringTools.hex = function(n,digits) {
 	}
 	return s;
 };
+var Tile = function(pos,type) {
+	flixel_FlxSprite.call(this,pos % 10 * 32,(pos / 10 | 0) * 32);
+	this.loadGraphic("assets/images/surroundings.png",true,32,32);
+	if(type == 0) {
+		this.animation.add("wave",[5,6,7],5,true);
+	} else {
+		this.animation.add("wave",[13,14,15],5,true);
+	}
+	this.set_x(pos % 10 * 32);
+	this.set_y((pos / 10 | 0) * 32);
+	this.updateHitbox();
+	this.animation.play("wave");
+};
+$hxClasses["Tile"] = Tile;
+Tile.__name__ = "Tile";
+Tile.__super__ = flixel_FlxSprite;
+Tile.prototype = $extend(flixel_FlxSprite.prototype,{
+	update: function(elapsed) {
+		flixel_FlxSprite.prototype.update.call(this,elapsed);
+	}
+	,__class__: Tile
+});
 var ValueType = $hxEnums["ValueType"] = { __ename__:"ValueType",__constructs__:null
 	,TNull: {_hx_name:"TNull",_hx_index:0,__enum__:"ValueType",toString:$estr}
 	,TInt: {_hx_name:"TInt",_hx_index:1,__enum__:"ValueType",toString:$estr}
@@ -77270,7 +77458,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 818381;
+	this.version = 160432;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -126084,20 +126272,15 @@ openfl_display_DisplayObject.__tempStack = new lime_utils_ObjectPool(function() 
 	stack.set_length(0);
 });
 AssetPaths.data_goes_here__txt = "assets/data/data-goes-here.txt";
-AssetPaths.background__png = "assets/images/background.png";
+AssetPaths.croc__png = "assets/images/croc.png";
 AssetPaths.images_go_here__txt = "assets/images/images-go-here.txt";
-AssetPaths.mole__png = "assets/images/mole.png";
-AssetPaths.mole_var__png = "assets/images/mole_var.png";
-AssetPaths.score__png = "assets/images/score.png";
+AssetPaths.obstacle__png = "assets/images/obstacle.png";
+AssetPaths.surroundings__png = "assets/images/surroundings.png";
+AssetPaths.tornado__png = "assets/images/tornado.png";
 AssetPaths.music_goes_here__txt = "assets/music/music-goes-here.txt";
 AssetPaths.sounds_go_here__txt = "assets/sounds/sounds-go-here.txt";
-AssetPaths.allFiles = ["assets/data/data-goes-here.txt","assets/images/background.png","assets/images/images-go-here.txt","assets/images/mole.png","assets/images/mole_var.png","assets/images/score.png","assets/music/music-goes-here.txt","assets/sounds/sounds-go-here.txt"];
-HighScore.s1 = 0;
-HighScore.s2 = 0;
-HighScore.s3 = 0;
+AssetPaths.allFiles = ["assets/data/data-goes-here.txt","assets/images/croc.png","assets/images/images-go-here.txt","assets/images/obstacle.png","assets/images/surroundings.png","assets/images/tornado.png","assets/music/music-goes-here.txt","assets/sounds/sounds-go-here.txt"];
 flixel_FlxBasic.idEnumerator = 0;
-openfl_text_Font.__fontByName = new haxe_ds_StringMap();
-openfl_text_Font.__registeredFonts = [];
 flixel_math_FlxRect._pool = (function($this) {
 	var $r;
 	var X = 0;
@@ -126178,6 +126361,8 @@ flixel_FlxObject._secondSeparateFlxRect = (function($this) {
 	return $r;
 }(this));
 flixel_FlxSprite.defaultAntialiasing = false;
+openfl_text_Font.__fontByName = new haxe_ds_StringMap();
+openfl_text_Font.__registeredFonts = [];
 Xml.Element = 0;
 Xml.PCData = 1;
 Xml.CData = 2;
