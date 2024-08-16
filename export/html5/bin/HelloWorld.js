@@ -925,7 +925,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "21";
+	app.meta.h["build"] = "22";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "HelloWorld";
 	app.meta.h["name"] = "HelloWorld";
@@ -3522,7 +3522,7 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 });
 var Main = function() {
 	openfl_display_Sprite.call(this);
-	this.addChild(new flixel_FlxGame(0,0,flixel_util_typeLimit_InitialState.fromType(EndState)));
+	this.addChild(new flixel_FlxGame(0,0,flixel_util_typeLimit_InitialState.fromType(MenuState)));
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
@@ -7974,7 +7974,6 @@ EndState.prototype = $extend(flixel_FlxState.prototype,{
 	,tiles: null
 	,create: function() {
 		flixel_FlxState.prototype.create.call(this);
-		this.finalScore = 2;
 		this.tiles = [];
 		var _g = 0;
 		while(_g < 150) {
@@ -8476,6 +8475,8 @@ MenuState.prototype = $extend(flixel_FlxState.prototype,{
 			this.tiles.push(new Tile(i,1));
 			this.add(this.tiles[i]);
 		}
+		this.title = new flixel_text_FlxText(75,40,200,"gather as many crocodiles as\nyou can in the clear areas",20);
+		this.add(this.title);
 		var buttonPlay = new flixel_addons_ui_FlxButtonPlus(0,0,function() {
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				var nextState = flixel_util_typeLimit_NextState.fromState(new PlayState());
@@ -77458,7 +77459,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 160432;
+	this.version = 719278;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";

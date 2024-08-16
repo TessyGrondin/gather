@@ -25,6 +25,9 @@ class MenuState extends FlxState
 			add(tiles[i]);
 		}
 
+		title = new FlxText(75, 40, 200, "gather as many crocodiles as\nyou can in the clear areas", 20);
+		add(title);
+
 		var buttonPlay:FlxButtonPlus = new FlxButtonPlus(0, 0, function()
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, function()
